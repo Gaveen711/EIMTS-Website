@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import Link from "../../components/ui/Link";
 import { EmployerInquiryForm } from "../../components/ui/EmployerInquiryForm";

@@ -1,5 +1,12 @@
+"use client";
+
+import dynamic from "next/dynamic";
 import { PageHero } from "../../components/ui/PageHero";
-import { BranchMap } from "./BranchMap";
+
+const BranchMap = dynamic(
+  () => import("./BranchMap").then((module) => module.BranchMap),
+  { ssr: false },
+);
 
 // ============================================================================
 // LOCAL OFFICE DIRECTORY DATA

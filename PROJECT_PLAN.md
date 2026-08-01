@@ -66,7 +66,7 @@ apps/
 - Appears live immediately on public site
 - Can edit/update existing jobs
 - Can deactivate jobs (soft delete - not visible to public)
-- Only IT can permanently delete jobs
+- IT & grahpics team can permanently delete jobs 
 
 #### B. Popups/Banners
 **Fields:**
@@ -81,7 +81,7 @@ apps/
 - User can close with X button
 - If multiple popups exist, rotate them (carousel support)
 - Publish immediately when created
-- Only IT can delete popups
+- IT & grahpics team can delete popups too 
 
 ### 3.2 Storage Specifications
 
@@ -112,7 +112,7 @@ apps/
   - ✅ Deactivate jobs
   - ✅ Create and publish popups
   - ✅ Upload popup images
-  - ❌ Delete jobs/popups (IT only)
+  - ✅ Delete jobs/popups (IT & grahpics team can delete jobs too )
   - ❌ Access code or deployment settings
 
 ### IT Team

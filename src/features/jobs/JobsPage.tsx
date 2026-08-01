@@ -1,7 +1,10 @@
+"use client";
+
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 
-type Job = {
+export type Job = {
   id: string;
+  slug?: string;
   title: string;
   location: string;
   category: string;
@@ -16,7 +19,7 @@ type SortOption = "default" | "title-asc" | "location-asc";
 
 const emptyFilters: Filters = { title: "", location: "", category: "" };
 
-const jobs: Job[] = [
+const fallbackJobs: Job[] = [
   {
     id: "barista-saudi-arabia",
     title: "Barista Positions in Saudi Arabia",
@@ -175,6 +178,17 @@ function PinIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.1 6-12a6 6 0 1 0-12 0c0 6.9 6 12 6 12Z" /><circle cx="12" cy="9" r="2" /></svg>;
 }
 
+function JobCardContent({ job }: { job: Job }) {
+  return <>
+    <span className={"job-status" + (job.urgent ? " is-urgent" : "")}>{job.urgent ? "Urgent" : "Open"}</span>
+    <span className="job-card-image"><img src={job.image} alt="" loading="lazy" style={{ objectPosition: job.imagePosition }} /></span>
+    <span className="job-card-category">{job.category}</span>
+    <strong>{job.title}</strong>
+    <span className="job-card-location"><PinIcon /> {job.location}</span>
+    <span className="job-card-footer">View details <b aria-hidden="true">&gt;</b></span>
+  </>;
+}
+
 function CategoryIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>;
 }
@@ -323,8 +337,9 @@ function updateQuery(filters: Filters) {
   window.history.replaceState({}, "", window.location.pathname + search);
 }
 
-export default function JobsPage() {
+export default function JobsPage({ initialJobs = [] }: { initialJobs?: Job[] }) {
   const initial = queryFilters();
+  const jobs = initialJobs.length ? initialJobs : fallbackJobs;
   const [draft, setDraft] = useState<Filters>(initial);
   const [active, setActive] = useState<Filters>(initial);
   const [sort, setSort] = useState<SortOption>("default");
@@ -406,7 +421,7 @@ export default function JobsPage() {
     if (cv.size > 5 * 1024 * 1024) return setApplicationMessage("Your CV must be 5 MB or smaller.");
     setApplicationMessage("Sending your application...");
     try {
-      const response = await fetch("/apply.php", { method: "POST", body: formData });
+      const response = await fetch("/api/applications", { method: "POST", body: formData });
       const result = await response.json() as { message?: string };
       if (!response.ok) throw new Error(result.message || "We could not send your application.");
       form.reset();
@@ -487,14 +502,9 @@ export default function JobsPage() {
 
         {visibleJobs.length ? <div className="job-directory-grid">
           {visibleJobs.map((job) => <article className="job-listing-card" key={job.id}>
-            <button className="job-card-open" type="button" onClick={() => setSelectedJob(job)} aria-label={"View details for " + job.title}>
-              <span className={"job-status" + (job.urgent ? " is-urgent" : "")}>{job.urgent ? "Urgent" : "Open"}</span>
-              <span className="job-card-image"><img src={job.image} alt="" loading="lazy" style={{ objectPosition: job.imagePosition }} /></span>
-              <span className="job-card-category">{job.category}</span>
-              <strong>{job.title}</strong>
-              <span className="job-card-location"><PinIcon /> {job.location}</span>
-              <span className="job-card-footer">View details <b aria-hidden="true">&gt;</b></span>
-            </button>
+            {job.slug
+              ? <a className="job-card-open" href={`/foreign-job-vacancies/${job.slug}/`} aria-label={"View details for " + job.title}><JobCardContent job={job} /></a>
+              : <button className="job-card-open" type="button" onClick={() => setSelectedJob(job)} aria-label={"View details for " + job.title}><JobCardContent job={job} /></button>}
           </article>)}
         </div> : <div className="jobs-empty">
           <span aria-hidden="true"><SearchIcon /></span>
@@ -530,6 +540,7 @@ export default function JobsPage() {
           </div>
           <p className="job-detail-note">Apply directly below. Please include an up-to-date CV so our recruitment team can review your application for this vacancy.</p>
           <form className="job-application-form" onSubmit={submitApplication} encType="multipart/form-data">
+            <input type="hidden" name="job_id" value={selectedJob.id} />
             <input type="hidden" name="job_title" value={selectedJob.title} />
             <h3>Apply for this vacancy</h3>
             <div className="job-application-grid">

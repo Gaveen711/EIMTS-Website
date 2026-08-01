@@ -1,35 +1,52 @@
 # Project Structure
 
-This project is a React, Vite, and TypeScript website. All editable application code lives in `src/`.
+## Public website
 
-## Where to Make Changes
+The public Next.js application remains at the repository root.
 
 | Need | Location |
 | --- | --- |
-| Add or change a page | `src/features/<area>/` |
-| Change the site header or footer | `src/components/layout/` |
-| Change shared UI pieces | `src/components/ui/` |
-| Add a new URL or change routing | `src/app/App.tsx` |
-| Change page titles or descriptions | `src/lib/seo.ts` |
-| Change global styling | `src/styles/globals.css` |
-| Change shared page styling | `src/styles/multipage.css` |
-| Add or replace images | `public/assets/` |
+| Public routes and SEO metadata | `src/app/` |
+| Existing page experiences | `src/features/` |
+| Shared public components | `src/components/` |
+| Public database queries | `src/lib/jobs.ts` |
+| Global visual styling | `src/styles/` |
+| Public images and files | `public/` |
 
-## Adding a New Page
+Every indexable route is represented by a Next.js `page.tsx`. Job detail pages
+are generated at `/foreign-job-vacancies/[slug]/`, with per-job metadata and
+`JobPosting` structured data.
 
-1. Create a page component inside `src/features/<feature-name>/`.
-2. Import it and add its URL to the `routes` object in `src/app/App.tsx`.
-3. Add its title and description to `src/lib/seo.ts`.
-4. Add the matching route to `scripts/generate-route-pages.mjs` so the production build creates its SEO-ready page.
-5. Link to the new URL from the appropriate navigation component.
+## Staff dashboard
 
-## Before Handover
+The separate Next.js dashboard lives in `dashboard/` and is intended to be
+deployed to `admin.emeraldislemanpower.com`.
 
-Run these checks after every change:
+| Need | Location |
+| --- | --- |
+| Dashboard pages | `dashboard/src/app/` |
+| Job create/edit form | `dashboard/src/components/JobForm.tsx` |
+| Candidate application review | `dashboard/src/app/applications/` |
+| Protected publishing actions | `dashboard/src/app/actions.ts` |
+| Dashboard Supabase clients | `dashboard/src/lib/supabase/` |
 
-```bash
-npm run lint
-npm run build
+## Database
+
+Supabase supplies PostgreSQL, authentication and file storage. The SQL migration
+in `supabase/migrations/` creates jobs, applications, profiles, security
+policies and storage buckets. The existing WordPress/MySQL database is not
+modified.
+
+Shared TypeScript database contracts live in `packages/database/`.
+
+## Deployment shape
+
+```text
+emeraldislemanpower.com       public Next.js website
+admin.emeraldislemanpower.com private Next.js dashboard
+Supabase                       database, staff authentication and storage
 ```
 
-Use small, feature-focused changes. Shared components belong in `src/components/`; content or behaviour used by one page belongs in that page's feature folder.
+The public site and dashboard use the same Supabase project but have different
+deployment surfaces. Database security is enforced server-side through
+row-level security, not only by hiding dashboard links.

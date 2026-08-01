@@ -25,10 +25,15 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!dashboard/.env.example
 
 # vercel
 .vercel
 
 /dist/
+/.next/
+/dashboard/.next/
+*.tsbuildinfo
 /.vinext/
 /.wrangler/

@@ -1,0 +1,170 @@
+.page {
+  color: #163128;
+  background: #f5f8f6;
+}
+
+.hero {
+  padding: clamp(8rem, 16vw, 12rem) 0 clamp(4rem, 8vw, 7rem);
+  color: white;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(84, 192, 133, 0.28), transparent 30%),
+    linear-gradient(135deg, #073f2a, #0a6d46);
+}
+
+.heroInner,
+.content {
+  width: min(1120px, 90vw);
+  margin: 0 auto;
+}
+
+.heroInner > a {
+  display: inline-block;
+  margin-bottom: 3rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+}
+
+.badges,
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.badges span,
+.badges strong {
+  padding: 0.42rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  font-size: 0.74rem;
+}
+
+.badges strong {
+  color: #17372b;
+  background: #bff0cc;
+}
+
+.hero h1 {
+  max-width: 900px;
+  margin: 1.4rem 0;
+  font-size: clamp(2.7rem, 7vw, 5.7rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.hero p {
+  max-width: 720px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  line-height: 1.65;
+}
+
+.meta {
+  margin-top: 2rem;
+}
+
+.meta span {
+  padding-right: 1rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: clamp(2rem, 6vw, 6rem);
+  padding: clamp(3rem, 7vw, 6rem) 0;
+}
+
+.content article {
+  font-size: 1.03rem;
+  line-height: 1.8;
+}
+
+.content h2 {
+  margin: 0 0 1.2rem;
+  font-size: clamp(1.5rem, 3vw, 2.15rem);
+  letter-spacing: -0.03em;
+}
+
+.content article h2:not(:first-child) {
+  margin-top: 3rem;
+}
+
+.content li {
+  margin-bottom: 0.8rem;
+}
+
+.content aside {
+  position: sticky;
+  top: 7rem;
+  align-self: start;
+  padding: 1.8rem;
+  border: 1px solid #d7e2dc;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 20px 50px rgba(7, 63, 42, 0.08);
+}
+
+.content aside p,
+.content aside small {
+  color: #617069;
+  line-height: 1.6;
+}
+
+.content aside form {
+  display: grid;
+  gap: 0.8rem;
+  margin: 1.4rem 0;
+}
+
+.content aside label {
+  display: grid;
+  gap: 0.35rem;
+  color: #3d4d46;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.content aside input {
+  width: 100%;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid #d0dbd5;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.content aside button {
+  display: flex;
+  justify-content: center;
+  padding: 0.9rem 1rem;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: #08794c;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.content aside button:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.content aside form p {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.content aside small {
+  display: block;
+}
+
+@media (max-width: 760px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .content aside {
+    position: static;
+  }
+}
