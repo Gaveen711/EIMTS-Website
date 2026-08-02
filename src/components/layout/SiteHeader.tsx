@@ -10,6 +10,7 @@ const routes = {
   projects: "/projects/",
   blog: "/insightful-and-engaging-blog-posts-discover-our-latest-articles/",
   faq: "/emerald-isle-manpower-faq/",
+  contact: "/contact/",
 };
 
 const jobGroups = [
