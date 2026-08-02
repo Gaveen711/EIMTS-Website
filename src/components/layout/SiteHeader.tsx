@@ -23,19 +23,41 @@ function Caret() {
   return <span className="nav-caret" aria-hidden="true" />;
 }
 
-function JobMegaMenu() {
-  return <div className="jobs-mega-menu" aria-label="Job categories">
-    <div className="jobs-mega-grid">
-      {jobGroups.map((group) => <section className="mega-column" key={group.title}><h2>{group.title}</h2>{group.links.map((label) => <a href={routes.jobs + "?filter-category=" + encodeURIComponent(label)} key={label}>{label}</a>)}</section>)}
-      <section className="mega-column mega-candidate-desk"><h2>Candidate desk</h2><a className="mega-highlight" href={routes.blog}>Career advice</a><a href={routes.jobs}>All foreign vacancies</a><a href="https://registration.emeraldislemanpower.com/">Register as a job seeker</a></section>
+function JobMegaMenu({ onClose }: { onClose?: () => void }) {
+  return (
+    <div className="jobs-mega-menu" aria-label="Job categories">
+      <div className="jobs-mega-grid">
+        {jobGroups.map((group) => (
+          <section className="mega-column" key={group.title}>
+            <h2>{group.title}</h2>
+            {group.links.map((label) => (
+              <a
+                href={routes.jobs + "?filter-category=" + encodeURIComponent(label)}
+                key={label}
+                onClick={onClose}
+              >
+                {label}
+              </a>
+            ))}
+          </section>
+        ))}
+        <section className="mega-column mega-candidate-desk">
+          <h2>Candidate desk</h2>
+          <a className="mega-highlight" href={routes.blog} onClick={onClose}>Career advice</a>
+          <a href={routes.jobs} onClick={onClose}>All foreign vacancies</a>
+          <a href="https://registration.emeraldislemanpower.com/" onClick={onClose}>Register as a job seeker</a>
+        </section>
+      </div>
     </div>
-  </div>;
+  );
 }
 
 export function SiteHeader() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -43,10 +65,14 @@ export function SiteHeader() {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
   useEffect(() => {
     let lastScrollY = window.scrollY;
     let ticking = false;
@@ -55,13 +81,14 @@ export function SiteHeader() {
       const currentScrollY = window.scrollY;
       const delta = currentScrollY - lastScrollY;
       const headerHasFocus = headerRef.current?.contains(document.activeElement);
-      const menuIsOpen = isOpen || Boolean(headerRef.current?.querySelector("details[open]"));
+      const menuIsOpen = isOpen || isMobileMenuOpen;
 
       if (currentScrollY <= 80 || delta < -6 || headerHasFocus || menuIsOpen) {
         setIsHidden(false);
       } else if (delta > 6 && currentScrollY > 140) {
         setIsHidden(true);
         setIsOpen(false);
+        setIsMobileMenuOpen(false);
       }
 
       lastScrollY = currentScrollY;
@@ -77,7 +104,15 @@ export function SiteHeader() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isOpen]);
+  }, [isOpen, isMobileMenuOpen]);
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen((prev) => !prev);
+  };
 
   return <header ref={headerRef} className={"global-header" + (isHidden ? " is-hidden" : "")}>
     <div className="wide-container nav-shell">
@@ -130,6 +165,7 @@ export function SiteHeader() {
           <a href={routes.projects}>Projects</a>
           <a href={routes.blog}>Blogs</a>
           <a href={routes.faq}>FAQ</a>
+          <a href={routes.contact}>Contact</a>
           <a href="https://registration.emeraldislemanpower.com/">Register now</a>
         </nav>
       </details>

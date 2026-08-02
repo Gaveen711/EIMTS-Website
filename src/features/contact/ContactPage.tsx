@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { PageHero } from "../../components/ui/PageHero";
 
@@ -47,6 +48,21 @@ const offices: Office[] = [
 ];
 
 export default function ContactPage() {
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash) {
+      const targetId = window.location.hash.substring(1);
+      const jumpToTarget = () => {
+        const element = document.getElementById(targetId);
+        if (element) {
+          element.scrollIntoView({ behavior: "instant" as ScrollBehavior, block: "start" });
+        }
+      };
+      jumpToTarget();
+      const timer = setTimeout(jumpToTarget, 50);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   return <main id="main">
     {/* ====================================================================== */}
     {/* PAGE HERO HEADER                                                       */}
