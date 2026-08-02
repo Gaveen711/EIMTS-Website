@@ -26,3 +26,17 @@ export type JobRecord = {
 };
 
 export type ProfileRole = "admin" | "editor" | "viewer";
+
+export type PopupRecord = {
+  id: string;
+  title: string;
+  message: string | null;
+  image_url: string | null;
+  link_url: string | null;
+  link_label: string | null;
+  active: boolean;
+  starts_at: string | null;
+  ends_at: string | null;
+  created_at: string;
+  updated_at: string;
+};

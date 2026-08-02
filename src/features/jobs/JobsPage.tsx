@@ -19,148 +19,14 @@ type SortOption = "default" | "title-asc" | "location-asc";
 
 const emptyFilters: Filters = { title: "", location: "", category: "" };
 
-const fallbackJobs: Job[] = [
-  {
-    id: "barista-saudi-arabia",
-    title: "Barista Positions in Saudi Arabia",
-    location: "Saudi Arabia",
-    category: "Hospitality",
-    employmentType: "Full-time",
-    urgent: true,
-    image: "/assets/blog-interview-editorial.webp",
-    imagePosition: "28% 50%",
-  },
-  {
-    id: "assistant-general-manager-ireland",
-    title: "Assistant General Manager (Hotel)",
-    location: "Ireland",
-    category: "Hospitality",
-    employmentType: "Full-time",
-    urgent: false,
-    image: "/assets/hero-employer-partnership.webp",
-    imagePosition: "72% 50%",
-  },
-  {
-    id: "automotive-saudi-arabia",
-    title: "Automotive Job Opportunities",
-    location: "Saudi Arabia",
-    category: "Automotive",
-    employmentType: "Full-time",
-    urgent: true,
-    image: "/assets/blog-career-planning.webp",
-    imagePosition: "30% 50%",
-  },
-  {
-    id: "carpentry-industrial-serbia",
-    title: "Carpentry and Industrial Jobs",
-    location: "Serbia",
-    category: "Skilled Trades",
-    employmentType: "Full-time",
-    urgent: false,
-    image: "/assets/blog-global-careers.webp",
-    imagePosition: "50% 50%",
-  },
-  {
-    id: "warehouse-associates-serbia",
-    title: "Warehouse Associates",
-    location: "Serbia",
-    category: "Logistics",
-    employmentType: "Full-time",
-    urgent: true,
-    image: "/assets/blog-career-planning.webp",
-    imagePosition: "30% 50%",
-  },
-  {
-    id: "culinary-professionals-ireland",
-    title: "Culinary Professionals",
-    location: "Ireland",
-    category: "Culinary",
-    employmentType: "Full-time",
-    urgent: false,
-    image: "/assets/emerald-journey-hero.webp",
-    imagePosition: "62% 50%",
-  },
-  {
-    id: "culinary-opportunities-kuwait",
-    title: "Culinary Job Opportunities",
-    location: "Kuwait",
-    category: "Culinary",
-    employmentType: "Full-time",
-    urgent: true,
-    image: "/assets/hero-travel-guidance.webp",
-    imagePosition: "72% 50%",
-  },
-  {
-    id: "executive-chef-kuwait",
-    title: "Executive Chef Vacancy",
-    location: "Kuwait",
-    category: "Hospitality",
-    employmentType: "Full-time",
-    urgent: false,
-    image: "/assets/blog-leadership-editorial.webp",
-    imagePosition: "56% 50%",
-  },
-  {
-    id: "grill-cooks-pizza-makers-kuwait",
-    title: "Grill Cooks and Pizza Makers",
-    location: "Kuwait",
-    category: "Culinary",
-    employmentType: "Full-time",
-    urgent: true,
-    image: "/assets/blog-global-careers.webp",
-    imagePosition: "50% 50%",
-  },
-  {
-    id: "aluminium-fabricators-serbia",
-    title: "Aluminium Fabricators",
-    location: "Serbia",
-    category: "Engineering",
-    employmentType: "Full-time",
-    urgent: false,
-    image: "/assets/blog-career-planning.webp",
-    imagePosition: "30% 50%",
-  },
-  {
-    id: "merchandisers-kuwait",
-    title: "Merchandiser Positions",
-    location: "Kuwait",
-    category: "Retail",
-    employmentType: "Full-time",
-    urgent: false,
-    image: "/assets/blog-interview-editorial.webp",
-    imagePosition: "28% 50%",
-  },
-  {
-    id: "cafm-storekeeper-saudi-arabia",
-    title: "CAFM Coordinator and Storekeeper",
-    location: "Saudi Arabia",
-    category: "Facilities",
-    employmentType: "Full-time",
-    urgent: true,
-    image: "/assets/blog-global-careers.webp",
-    imagePosition: "50% 50%",
-  },
-];
-
-const popularSearches = ["Hospitality", "Automotive", "Culinary", "Engineering"];
-const locationOptions = [
-  { value: "", label: "All locations" },
-  { value: "Ireland", label: "Ireland" },
-  { value: "Saudi Arabia", label: "Saudi Arabia" },
-  { value: "Serbia", label: "Serbia" },
-  { value: "Kuwait", label: "Kuwait" },
-];
-const categoryOptions = [
-  { value: "", label: "All categories" },
-  { value: "Hospitality", label: "Hospitality" },
-  { value: "Automotive", label: "Automotive" },
-  { value: "Culinary", label: "Culinary" },
-  { value: "Engineering", label: "Engineering" },
-  { value: "Skilled Trades", label: "Skilled Trades" },
-  { value: "Logistics", label: "Logistics" },
-  { value: "Retail", label: "Retail" },
-  { value: "Facilities", label: "Facilities" },
-];
+function uniqueOptions(values: string[], allLabel: string) {
+  return [
+    { value: "", label: allLabel },
+    ...[...new Set(values)]
+      .sort((a, b) => a.localeCompare(b))
+      .map((value) => ({ value, label: value })),
+  ];
+}
 const sortOptions = [
   { value: "default", label: "Sort by: Recommended" },
   { value: "title-asc", label: "Job title: A to Z" },
@@ -339,7 +205,7 @@ function updateQuery(filters: Filters) {
 
 export default function JobsPage({ initialJobs = [] }: { initialJobs?: Job[] }) {
   const initial = queryFilters();
-  const jobs = initialJobs.length ? initialJobs : fallbackJobs;
+  const jobs = initialJobs;
   const [draft, setDraft] = useState<Filters>(initial);
   const [active, setActive] = useState<Filters>(initial);
   const [sort, setSort] = useState<SortOption>("default");
@@ -348,6 +214,19 @@ export default function JobsPage({ initialJobs = [] }: { initialJobs?: Job[] }) 
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [applicationMessage, setApplicationMessage] = useState("");
   const dialogRef = useRef<HTMLDialogElement>(null);
+
+  const locationOptions = useMemo(
+    () => uniqueOptions(jobs.map((job) => job.location), "All locations"),
+    [jobs],
+  );
+  const categoryOptions = useMemo(
+    () => uniqueOptions(jobs.map((job) => job.category), "All categories"),
+    [jobs],
+  );
+  const popularSearches = useMemo(
+    () => [...new Set(jobs.map((job) => job.category))].slice(0, 4),
+    [jobs],
+  );
 
   const filteredJobs = useMemo(() => {
     const filtered = jobs.filter((job) => {
@@ -361,7 +240,7 @@ export default function JobsPage({ initialJobs = [] }: { initialJobs?: Job[] }) 
     if (sort === "title-asc") return [...filtered].sort((a, b) => a.title.localeCompare(b.title));
     if (sort === "location-asc") return [...filtered].sort((a, b) => a.location.localeCompare(b.location));
     return filtered;
-  }, [active, sort]);
+  }, [jobs, active, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filteredJobs.length / pageSize));
   const visibleJobs = filteredJobs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -467,10 +346,10 @@ export default function JobsPage({ initialJobs = [] }: { initialJobs?: Job[] }) 
           <button type="submit">Find jobs <span aria-hidden="true">-&gt;</span></button>
         </form>
 
-        <div className="jobs-popular" aria-label="Popular job searches">
+        {popularSearches.length > 0 && <div className="jobs-popular" aria-label="Popular job searches">
           <span>Popular searches:</span>
           {popularSearches.map((term) => <button type="button" key={term} onClick={() => choosePopularSearch(term)}>{term}</button>)}
-        </div>
+        </div>}
       </div>
     </section>
 
@@ -506,11 +385,16 @@ export default function JobsPage({ initialJobs = [] }: { initialJobs?: Job[] }) 
               ? <a className="job-card-open" href={`/foreign-job-vacancies/${job.slug}/`} aria-label={"View details for " + job.title}><JobCardContent job={job} /></a>
               : <button className="job-card-open" type="button" onClick={() => setSelectedJob(job)} aria-label={"View details for " + job.title}><JobCardContent job={job} /></button>}
           </article>)}
-        </div> : <div className="jobs-empty">
+        </div> : jobs.length ? <div className="jobs-empty">
           <span aria-hidden="true"><SearchIcon /></span>
           <h3>No exact matches yet</h3>
           <p>Try a broader keyword or clear the filters to see every current vacancy.</p>
           <button type="button" onClick={clearFilters}>Clear all filters</button>
+        </div> : <div className="jobs-empty">
+          <span aria-hidden="true"><SearchIcon /></span>
+          <h3>New vacancies are on the way</h3>
+          <p>We are preparing our next round of overseas opportunities. Check back soon or contact our team to register your interest.</p>
+          <a className="jobs-empty-contact" href="/contact/">Contact our team</a>
         </div>}
 
         {filteredJobs.length > pageSize && <nav className="jobs-pagination" aria-label="Job results pages">

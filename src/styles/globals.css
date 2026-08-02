@@ -1547,9 +1547,9 @@ input,select,textarea,button{max-inline-size:100%}
 .jobs-empty svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.6}
 .jobs-empty h3{margin:22px 0 8px;color:var(--ei-ink);font:620 28px/1.1 var(--font-sans)}
 .jobs-empty p{max-width:500px;margin:0 auto 24px;color:var(--ei-muted);line-height:1.6}
-.jobs-empty button{min-height:48px;padding:10px 22px;border:0;border-radius:999px;background:var(--ei-deep);color:#fff;font-weight:750;cursor:pointer}
-.jobs-empty button:hover{background:#08795d}
-.jobs-empty button:focus-visible{outline:3px solid var(--ei-amber);outline-offset:3px}
+.jobs-empty button,.jobs-empty-contact{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 22px;border:0;border-radius:999px;background:var(--ei-deep);color:#fff;font-weight:750;cursor:pointer;text-decoration:none}
+.jobs-empty button:hover,.jobs-empty-contact:hover{background:#08795d}
+.jobs-empty button:focus-visible,.jobs-empty-contact:focus-visible{outline:3px solid var(--ei-amber);outline-offset:3px}
 .jobs-pagination{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:42px}
 .jobs-pagination span{color:#67766f;font-size:13px;font-weight:650}
 .jobs-pagination button{min-height:44px;padding:0 17px;border:1px solid #cfdad4;border-radius:999px;background:#fff;color:var(--ei-ink);font:700 13px/1 var(--font-sans);cursor:pointer;transition:border-color .2s var(--ei-ease),background-color .2s var(--ei-ease),color .2s var(--ei-ease)}
@@ -1681,5 +1681,37 @@ input,select,textarea,button{max-inline-size:100%}
 }
 @media(prefers-reduced-motion:reduce){
   .job-select-chevron{transition:none}
+  .job-select-menu{animation:none}
+}
+/* ---------------------------------------------------------------------------
+   Liquid glass dropdowns — jobs page filter bar, sort and page-size menus.
+   Frosted translucent surfaces with a specular top edge and a springy open.
+--------------------------------------------------------------------------- */
+.jobs-filter.jobs-filter-modern{border:1px solid rgba(255,255,255,.78);background:linear-gradient(135deg,rgba(255,255,255,.72),rgba(238,248,243,.5));-webkit-backdrop-filter:blur(22px) saturate(1.7);backdrop-filter:blur(22px) saturate(1.7);box-shadow:0 24px 52px rgba(12,43,33,.16),0 4px 12px rgba(12,43,33,.07),inset 0 1px 0 rgba(255,255,255,.92),inset 0 -1px 0 rgba(255,255,255,.3)}
+.jobs-filter.jobs-filter-modern>.job-select{border-right-color:rgba(12,43,33,.08)}
+.jobs-filter.jobs-filter-modern .job-select-trigger:hover{background:rgba(255,255,255,.5)}
+.jobs-filter.jobs-filter-modern .job-select-trigger:focus-visible,.jobs-filter.jobs-filter-modern .job-select-trigger[aria-expanded="true"]{background:rgba(255,255,255,.55)}
+
+.job-toolbar-select .job-select-trigger{position:relative;overflow:hidden;isolation:isolate;border:1px solid rgba(255,255,255,.8);border-radius:999px;background:linear-gradient(135deg,rgba(255,255,255,.68),rgba(238,248,243,.46));-webkit-backdrop-filter:blur(16px) saturate(1.6);backdrop-filter:blur(16px) saturate(1.6);box-shadow:0 10px 24px rgba(12,43,33,.12),inset 0 1px 0 rgba(255,255,255,.9)}
+.job-toolbar-select .job-select-trigger::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(120deg,rgba(255,255,255,.85) 0%,rgba(255,255,255,0) 42%);pointer-events:none}
+.job-toolbar-select .job-select-trigger:hover{border-color:rgba(255,255,255,.95);background:linear-gradient(135deg,rgba(255,255,255,.82),rgba(238,248,243,.6));box-shadow:0 14px 30px rgba(12,43,33,.16),inset 0 1px 0 rgba(255,255,255,.95)}
+.job-toolbar-select .job-select-trigger:focus-visible,.job-toolbar-select .job-select-trigger[aria-expanded="true"]{border-color:rgba(8,121,93,.55);box-shadow:0 14px 30px rgba(12,43,33,.16),inset 0 1px 0 rgba(255,255,255,.95),0 0 0 4px rgba(243,184,75,.5)}
+
+.job-select-menu{border:1px solid rgba(255,255,255,.82);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(240,249,244,.62));-webkit-backdrop-filter:blur(26px) saturate(1.8);backdrop-filter:blur(26px) saturate(1.8);box-shadow:0 24px 54px rgba(3,39,31,.2),0 6px 16px rgba(3,39,31,.08),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.35);animation:liquid-menu-in .34s cubic-bezier(.3,1.35,.45,1)}
+.job-select-option,.jobs-filter.jobs-filter-modern .job-select-option{background:transparent}
+.job-select-option:hover,.job-select-option:focus-visible,.jobs-filter.jobs-filter-modern .job-select-option:hover,.jobs-filter.jobs-filter-modern .job-select-option:focus-visible{background:linear-gradient(135deg,rgba(8,121,93,.16),rgba(8,121,93,.07));box-shadow:inset 0 1px 0 rgba(255,255,255,.55)}
+.job-select-option[aria-selected="true"],.jobs-filter.jobs-filter-modern .job-select-option[aria-selected="true"]{background:linear-gradient(135deg,rgba(8,121,93,.22),rgba(8,121,93,.1));box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.job-select-menu::-webkit-scrollbar-thumb{border-color:transparent;background:rgba(8,121,93,.3)}
+
+@keyframes liquid-menu-in{0%{opacity:0;transform:translateY(-10px) scale(.93)}62%{opacity:1;transform:translateY(2px) scale(1.008)}100%{opacity:1;transform:none}}
+
+/* Solid fallbacks when the browser cannot blur what is behind the glass. */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .jobs-filter.jobs-filter-modern{background:linear-gradient(135deg,rgba(255,255,255,.97),rgba(238,248,243,.94))}
+  .job-toolbar-select .job-select-trigger{background:linear-gradient(135deg,rgba(255,255,255,.97),rgba(238,248,243,.94))}
+  .job-select-menu{background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(240,249,244,.96))}
+}
+
+@media (prefers-reduced-motion:reduce){
   .job-select-menu{animation:none}
 }

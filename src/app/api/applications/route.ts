@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { sendApplicationEmail } from "@/lib/email";
 
 const allowedTypes = new Set([
   "application/pdf",
@@ -85,6 +86,27 @@ export async function POST(request: Request) {
       "We could not save your application. Please email cv@emeraldisle.lk.",
       500,
     );
+  }
+
+  // Forward the application to the recruitment inboxes with the CV attached.
+  // The application is already saved above, so an email failure must not
+  // fail the candidate's submission — it is logged for follow-up instead.
+  try {
+    const result = await sendApplicationEmail({
+      jobTitle: String(formData.get("job_title") || "Vacancy").slice(0, 200),
+      fullName,
+      age,
+      email,
+      phone: phone || null,
+      cvFileName: cv.name,
+      cvContentType: cv.type,
+      cvBytes: bytes,
+    });
+    if (!result.sent) {
+      console.warn("Application email skipped:", result.reason);
+    }
+  } catch (error) {
+    console.error("Application email failed:", error);
   }
 
   return NextResponse.json({

@@ -72,7 +72,13 @@ function jobPayload(formData: FormData) {
 export async function createJob(formData: FormData) {
   const { supabase, user } = await requireStaff();
   const payload = { ...jobPayload(formData), created_by: user.id };
-  const { error } = await supabase.from("jobs").insert(payload);
+
+  let { error } = await supabase.from("jobs").insert(payload);
+  if (error?.code === "23505") {
+    // Duplicate slug: retry once with a short unique suffix instead of failing.
+    payload.slug = `${payload.slug}-${Math.random().toString(36).slice(2, 6)}`;
+    ({ error } = await supabase.from("jobs").insert(payload));
+  }
   if (error) throw new Error(error.message);
 
   revalidatePath("/");
@@ -104,17 +110,58 @@ export async function updateJobStatus(id: string, status: string) {
   revalidatePath("/");
 }
 
-export async function updateApplicationStatus(id: string, status: string) {
-  const { supabase } = await requireStaff();
-  const allowed = ["new", "reviewing", "shortlisted", "rejected", "hired"];
-  if (!allowed.includes(status)) throw new Error("Invalid application status.");
+function popupPayload(formData: FormData) {
+  const endsAt = text(formData, "ends_at");
+  return {
+    title: text(formData, "title"),
+    message: text(formData, "message") || null,
+    image_url: text(formData, "image_url") || null,
+    link_url: text(formData, "link_url") || null,
+    link_label: text(formData, "link_label") || null,
+    active: formData.get("active") === "on",
+    starts_at: text(formData, "starts_at") || null,
+    // The end date should include the whole final day.
+    ends_at: endsAt ? `${endsAt}T23:59:59` : null,
+  };
+}
 
+export async function createPopup(formData: FormData) {
+  const { supabase, user } = await requireStaff();
+  const payload = { ...popupPayload(formData), created_by: user.id };
+  const { error } = await supabase.from("popups").insert(payload);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/popups");
+  redirect("/popups");
+}
+
+export async function updatePopup(id: string, formData: FormData) {
+  const { supabase } = await requireStaff();
   const { error } = await supabase
-    .from("applications")
-    .update({ status })
+    .from("popups")
+    .update(popupPayload(formData))
     .eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/applications");
+
+  revalidatePath("/popups");
+  redirect("/popups");
+}
+
+export async function setPopupActive(id: string, active: boolean) {
+  const { supabase } = await requireStaff();
+  const { error } = await supabase
+    .from("popups")
+    .update({ active })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/popups");
+}
+
+export async function deletePopup(id: string) {
+  const { supabase } = await requireStaff();
+  const { error } = await supabase.from("popups").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/popups");
 }
 
 export async function signOut() {

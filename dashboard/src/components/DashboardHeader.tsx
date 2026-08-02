@@ -13,7 +13,7 @@ export function DashboardHeader({ email }: { email: string }) {
       </Link>
       <nav>
         <Link href="/">Jobs</Link>
-        <Link href="/applications">Applications</Link>
+        <Link href="/popups">Popups</Link>
         <Link href="/jobs/new">Add vacancy</Link>
       </nav>
       <form action={signOut}>
