@@ -27,6 +27,28 @@ export type JobRecord = {
 
 export type ProfileRole = "admin" | "editor" | "viewer";
 
+export type ApplicationStatus =
+  | "new"
+  | "reviewing"
+  | "shortlisted"
+  | "rejected"
+  | "hired";
+
+export type ApplicationRecord = {
+  id: string;
+  job_id: string;
+  full_name: string;
+  age: number;
+  email: string;
+  phone: string | null;
+  cv_path: string;
+  cover_note: string | null;
+  status: ApplicationStatus;
+  consent_at: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type PopupRecord = {
   id: string;
   title: string;

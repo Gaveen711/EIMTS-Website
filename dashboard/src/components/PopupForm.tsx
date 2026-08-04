@@ -1,6 +1,7 @@
 import type { PopupRecord } from "@eimts/database";
 import { ImageDropzone } from "./ImageDropzone";
 import { SubmitButton } from "./SubmitButton";
+import { Toggle } from "./Toggle";
 
 type Props = {
   action: (formData: FormData) => void | Promise<void>;
@@ -76,10 +77,12 @@ export function PopupForm({ action, popup }: Props) {
       </section>
       <aside className="publish-panel">
         <h2>Visibility</h2>
-        <label className="check-row">
-          <input name="active" type="checkbox" defaultChecked={popup?.active} />
-          Show on the website
-        </label>
+        <Toggle
+          name="active"
+          label="Show on the website"
+          hint="Visitors only see it inside the date window."
+          defaultChecked={popup?.active}
+        />
         <SubmitButton label={popup ? "Save changes" : "Create popup"} />
         <p className="panel-hint">
           Only active popups inside their date window appear to visitors. The

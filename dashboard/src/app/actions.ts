@@ -164,6 +164,29 @@ export async function deletePopup(id: string) {
   revalidatePath("/popups");
 }
 
+const applicationStatuses = [
+  "new",
+  "reviewing",
+  "shortlisted",
+  "rejected",
+  "hired",
+];
+
+export async function updateApplicationStatus(id: string, formData: FormData) {
+  const { supabase } = await requireStaff();
+  const status = text(formData, "status");
+  if (!applicationStatuses.includes(status)) {
+    throw new Error("Unknown application status.");
+  }
+
+  const { error } = await supabase
+    .from("applications")
+    .update({ status })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/applications");
+}
+
 export async function signOut() {
   const supabase = await createClient();
   if (supabase) await supabase.auth.signOut();

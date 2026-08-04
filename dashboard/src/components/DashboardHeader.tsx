@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { signOut } from "@/app/actions";
+import { NavLinks } from "./NavLinks";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function DashboardHeader({ email }: { email: string }) {
   return (
@@ -11,14 +13,11 @@ export function DashboardHeader({ email }: { email: string }) {
           <small>Content desk</small>
         </strong>
       </Link>
-      <nav>
-        <Link href="/">Jobs</Link>
-        <Link href="/popups">Popups</Link>
-        <Link href="/jobs/new">Add vacancy</Link>
-      </nav>
+      <NavLinks />
       <form action={signOut}>
         <span>{email}</span>
-        <button className="text-button" type="submit">
+        <ThemeToggle />
+        <button className="ghost-button" type="submit">
           Sign out
         </button>
       </form>

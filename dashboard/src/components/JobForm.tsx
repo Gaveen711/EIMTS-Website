@@ -1,6 +1,8 @@
 import type { JobRecord } from "@eimts/database";
+import { GlassSelect } from "./GlassSelect";
 import { ImageDropzone } from "./ImageDropzone";
 import { SubmitButton } from "./SubmitButton";
+import { Toggle } from "./Toggle";
 
 type Props = {
   action: (formData: FormData) => void | Promise<void>;
@@ -108,15 +110,12 @@ export function JobForm({ action, job }: Props) {
           </label>
           <label>
             Employment type
-            <select
+            <GlassSelect
               name="employment_type"
+              ariaLabel="Employment type"
               defaultValue={job?.employment_type || "Full-time"}
-            >
-              <option>Full-time</option>
-              <option>Part-time</option>
-              <option>Contract</option>
-              <option>Temporary</option>
-            </select>
+              options={["Full-time", "Part-time", "Contract", "Temporary"]}
+            />
           </label>
           <label>
             Minimum salary
@@ -140,11 +139,12 @@ export function JobForm({ action, job }: Props) {
           </label>
           <label>
             Currency
-            <select name="currency" defaultValue={job?.currency || "LKR"}>
-              {currencies.map((currency) => (
-                <option key={currency}>{currency}</option>
-              ))}
-            </select>
+            <GlassSelect
+              name="currency"
+              ariaLabel="Currency"
+              defaultValue={job?.currency || "LKR"}
+              options={currencies}
+            />
           </label>
           <label>
             Closing date
@@ -205,21 +205,30 @@ export function JobForm({ action, job }: Props) {
         <h2>Publishing</h2>
         <label>
           Status
-          <select name="status" defaultValue={job?.status || "draft"}>
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-            <option value="paused">Paused</option>
-            <option value="expired">Expired</option>
-          </select>
+          <GlassSelect
+            name="status"
+            ariaLabel="Status"
+            defaultValue={job?.status || "draft"}
+            options={[
+              { value: "draft", label: "Draft" },
+              { value: "published", label: "Published" },
+              { value: "paused", label: "Paused" },
+              { value: "expired", label: "Expired" },
+            ]}
+          />
         </label>
-        <label className="check-row">
-          <input name="urgent" type="checkbox" defaultChecked={job?.urgent} />
-          Mark as urgent
-        </label>
-        <label className="check-row">
-          <input name="featured" type="checkbox" defaultChecked={job?.featured} />
-          Feature on homepage
-        </label>
+        <Toggle
+          name="urgent"
+          label="Mark as urgent"
+          hint="Shows an urgent badge on the vacancy card."
+          defaultChecked={job?.urgent}
+        />
+        <Toggle
+          name="featured"
+          label="Feature on homepage"
+          hint="Pins this vacancy to the homepage list."
+          defaultChecked={job?.featured}
+        />
         <SubmitButton label={job ? "Save changes" : "Create vacancy"} />
         <p className="panel-hint">
           Save as a draft first, then publish when the details are approved.
