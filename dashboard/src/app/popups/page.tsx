@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { SetupRequired } from "@/components/SetupRequired";
 import { deletePopup, setPopupActive } from "@/app/actions";
+import { toColomboDateInput } from "@/lib/dates";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -103,7 +104,7 @@ export default async function PopupsPage() {
                         </td>
                         <td>
                           {popup.starts_at || popup.ends_at
-                            ? `${popup.starts_at?.slice(0, 10) || "Now"} → ${popup.ends_at?.slice(0, 10) || "No end"}`
+                            ? `${toColomboDateInput(popup.starts_at) || "Now"} → ${toColomboDateInput(popup.ends_at) || "No end"}`
                             : "Always"}
                         </td>
                         <td>

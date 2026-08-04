@@ -152,28 +152,58 @@ export default async function JobDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <section
-        className={styles.hero}
-        style={
-          job.image_url
-            ? { backgroundImage: `url(${job.image_url})` }
-            : undefined
-        }
-      >
-        <div className={styles.heroOverlay} />
+      <section className={styles.hero}>
         <div className={styles.heroInner}>
           <a href="/foreign-job-vacancies/">← All vacancies</a>
-          <div className={styles.badges}>
-            <span>{job.category}</span>
-            <span>{job.country}</span>
-            {job.urgent && <strong>Urgent</strong>}
+          <div
+            className={
+              job.image_url
+                ? `${styles.heroGrid} ${styles.withPoster}`
+                : styles.heroGrid
+            }
+          >
+            <div>
+              <div className={styles.badges}>
+                <span>{job.category}</span>
+                <span>{job.country}</span>
+                {job.urgent && <strong>Urgent</strong>}
+              </div>
+              <h1>{job.title}</h1>
+              <p className={styles.heroSummary}>{job.summary}</p>
+              <div className={styles.heroMeta}>
+                <span>
+                  <PinIcon />
+                  {job.location || job.country}
+                </span>
+                <span>
+                  <BriefcaseIcon />
+                  {job.employment_type}
+                </span>
+                {job.expires_at && (
+                  <span>
+                    <HourglassIcon />
+                    Apply before {dateFormat.format(new Date(job.expires_at))}
+                  </span>
+                )}
+              </div>
+              <div className={styles.heroActions}>
+                {salary && (
+                  <div className={styles.salaryBanner}>
+                    <small>Monthly salary</small>
+                    <strong>{salary}</strong>
+                  </div>
+                )}
+                <a className={styles.applyNow} href="#apply">
+                  Apply Now
+                </a>
+              </div>
+            </div>
+            {job.image_url && (
+              <figure className={styles.heroPoster}>
+                <img src={job.image_url} alt={`${job.title} — vacancy poster`} />
+              </figure>
+            )}
           </div>
-          <h1>{job.title}</h1>
-          <p>{job.summary}</p>
-          {salary && <div className={styles.salaryBanner}>{salary}</div>}
-          <a className={styles.applyNow} href="#apply">
-            Apply Now
-          </a>
         </div>
       </section>
 

@@ -92,6 +92,7 @@ export default async function DashboardPage() {
                     <th>Location</th>
                     <th>Status</th>
                     <th>Updated</th>
+                    <th>Urgency</th>
                     <th>
                       <span className="sr-only">Actions</span>
                     </th>
@@ -116,6 +117,13 @@ export default async function DashboardPage() {
                           month: "short",
                           year: "numeric",
                         }).format(new Date(job.updated_at))}
+                      </td>
+                      <td>
+                        <span
+                          className={`status ${job.urgent ? "status-urgent" : "status-standard"}`}
+                        >
+                          {job.urgent ? "Urgent" : "Standard"}
+                        </span>
                       </td>
                       <td className="row-actions">
                         <Link href={`/jobs/${job.id}`}>Edit</Link>

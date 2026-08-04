@@ -7,11 +7,12 @@ export function DashboardHeader({ email }: { email: string }) {
   return (
     <header className="dashboard-header">
       <Link className="dashboard-brand" href="/">
-        <span>EI</span>
-        <strong>
-          Emerald Isle
-          <small>Content desk</small>
-        </strong>
+        <span
+          className="dashboard-brand-logo"
+          role="img"
+          aria-label="Emerald Isle Manpower"
+        />
+        <small>Content desk</small>
       </Link>
       <NavLinks />
       <form action={signOut}>

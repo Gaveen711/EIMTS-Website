@@ -5,7 +5,21 @@ import { createClient } from "@/lib/supabase/browser";
 
 const acceptedTypes = ["image/jpeg", "image/png", "image/webp"];
 
-export function ImageDropzone({ defaultUrl }: { defaultUrl?: string | null }) {
+type Props = {
+  defaultUrl?: string | null;
+  folder?: string;
+  label?: string;
+  hint?: string;
+  required?: boolean;
+};
+
+export function ImageDropzone({
+  defaultUrl,
+  folder = "covers",
+  label = "Job image",
+  hint = "JPG, PNG or WebP — up to 5 MB. Shown on the job card and job page.",
+  required,
+}: Props) {
   const [url, setUrl] = useState(defaultUrl || "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -31,7 +45,7 @@ export function ImageDropzone({ defaultUrl }: { defaultUrl?: string | null }) {
 
     setBusy(true);
     const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `covers/${crypto.randomUUID()}.${extension}`;
+    const path = `${folder}/${crypto.randomUUID()}.${extension}`;
     const { error: uploadError } = await supabase.storage
       .from("job-media")
       .upload(path, file, { contentType: file.type, upsert: false });
@@ -52,11 +66,20 @@ export function ImageDropzone({ defaultUrl }: { defaultUrl?: string | null }) {
 
   return (
     <div className="full dropzone-field">
-      <span className="field-label">Job image</span>
-      <input type="hidden" name="image_url" value={url} />
+      <span className="field-label">{label}</span>
+      {/* Visually hidden but still validatable, so a required image blocks
+          submission with the browser's own prompt instead of a server error. */}
+      <input
+        className="sr-only"
+        tabIndex={-1}
+        name="image_url"
+        value={url}
+        onChange={() => {}}
+        required={required}
+      />
       {url ? (
         <div className="dropzone-preview">
-          <img src={url} alt="Job cover preview" />
+          <img src={url} alt={`${label} preview`} />
           <div className="dropzone-preview-actions">
             <button type="button" onClick={pickFile} disabled={busy}>
               {busy ? "Uploading…" : "Replace image"}
@@ -91,7 +114,7 @@ export function ImageDropzone({ defaultUrl }: { defaultUrl?: string | null }) {
           }}
         >
           <strong>{busy ? "Uploading…" : "Drop an image here, or click to browse"}</strong>
-          <small>JPG, PNG or WebP — up to 5 MB. Shown on the job card and job page.</small>
+          <small>{hint}</small>
         </div>
       )}
       <input

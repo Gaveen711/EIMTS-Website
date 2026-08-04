@@ -1,4 +1,5 @@
 import HomePage from "@/features/home/HomePage";
+import { getHeroContent } from "@/lib/hero";
 import { pageMetadata } from "@/lib/site";
 
 export const metadata = pageMetadata(
@@ -7,6 +8,11 @@ export const metadata = pageMetadata(
   "/",
 );
 
-export default function Page() {
-  return <HomePage />;
+// Hero slides are managed from the dashboard; pick up changes within a minute
+// while keeping the homepage statically cached.
+export const revalidate = 60;
+
+export default async function Page() {
+  const hero = await getHeroContent();
+  return <HomePage hero={hero} />;
 }

@@ -1,4 +1,5 @@
 import type { JobRecord } from "@eimts/database";
+import { toColomboDateInput } from "@/lib/dates";
 import { GlassSelect } from "./GlassSelect";
 import { ImageDropzone } from "./ImageDropzone";
 import { SubmitButton } from "./SubmitButton";
@@ -151,7 +152,7 @@ export function JobForm({ action, job }: Props) {
             <input
               name="expires_at"
               type="date"
-              defaultValue={job?.expires_at?.slice(0, 10) || ""}
+              defaultValue={toColomboDateInput(job?.expires_at)}
             />
           </label>
           <label className="full">

@@ -49,6 +49,25 @@ export type ApplicationRecord = {
   updated_at: string;
 };
 
+export type HeroSlideRecord = {
+  id: string;
+  kicker: string | null;
+  title: string;
+  copy: string;
+  image_url: string;
+  cta_label: string | null;
+  cta_url: string | null;
+  cta2_label: string | null;
+  cta2_url: string | null;
+  sort_order: number;
+  is_takeover: boolean;
+  active: boolean;
+  starts_at: string | null;
+  ends_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type PopupRecord = {
   id: string;
   title: string;

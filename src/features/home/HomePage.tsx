@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { HeroContent } from "../../lib/hero";
 import Link from "../../components/ui/Link";
 import { EmployerInquiryForm } from "../../components/ui/EmployerInquiryForm";
 import ClientGlobe from "../../components/visuals/ClientGlobe";
@@ -30,30 +31,10 @@ const testimonials = [
 ];
 
 // ============================================================================
-// 3. HOME HERO SLIDES DATA
-// Edit background images, kickers, titles, and subtitle copy for the hero slider
-// Image files stored in: /public/assets/
+// 3. HOME HERO SLIDES
+// Slides are managed from the staff dashboard (Hero section) and passed in as
+// the `hero` prop by src/app/page.tsx. Fallback copies live in src/lib/hero.ts.
 // ============================================================================
-const heroSlides = [
-  {
-    image: "/assets/emerald-journey-hero.webp",
-    kicker: "Trusted in Sri Lanka since 1995",
-    title: "32+ years of connecting Sri Lankan talent with global opportunity.",
-    copy: "Responsible overseas recruitment, documentation and travel guidance, supported by one accountable team.",
-  },
-  {
-    image: "/assets/hero-employer-partnership.webp",
-    kicker: "Trusted recruitment. Stronger teams.",
-    title: "Exceptional people build stronger businesses.",
-    copy: "Industry-focused recruitment connecting respected employers with carefully screened talent.",
-  },
-  {
-    image: "/assets/hero-travel-guidance.webp",
-    kicker: "From application to arrival.",
-    title: "Every overseas journey deserves clear guidance.",
-    copy: "Recruitment, documentation and travel support brought together by one accountable team.",
-  },
-];
 
 const companyStory = [
   {
@@ -86,13 +67,14 @@ const companyStory = [
   },
 ];
 
-export default function Home() {
+export default function Home({ hero }: { hero: HeroContent }) {
+  const heroSlides = hero.slides;
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [activeStory, setActiveStory] = useState(0);
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const inquiryDialogRef = useRef<HTMLDialogElement>(null);
-  const activeHero = heroSlides[activeSlide];
+  const activeHero = heroSlides[activeSlide] ?? heroSlides[0];
   const activeClientTestimonial = testimonials[activeTestimonial];
 
   useEffect(() => {
@@ -126,12 +108,14 @@ export default function Home() {
   }, [isInquiryOpen]);
 
   useEffect(() => {
+    // An occasion takeover (or a single slide) shows statically — no rotation.
+    if (hero.takeover || heroSlides.length < 2) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = window.setInterval(() => {
       setActiveSlide((current) => (current + 1) % heroSlides.length);
     }, 6500);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [hero.takeover, heroSlides.length]);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -199,29 +183,35 @@ export default function Home() {
           height="1024"
           fetchPriority={index === 0 ? "high" : "auto"}
           loading={index === 0 ? "eager" : "lazy"}
-          key={slide.image}
+          key={index}
         />)}
       </div>
       <div className="ei-hero-shade" />
       <div className="container ei-hero-content">
-        <div className="ei-hero-copy" key={activeHero.image}>
-          <p className="ei-kicker">{activeHero.kicker}</p>
+        <div className="ei-hero-copy" key={activeSlide}>
+          {activeHero.kicker && <p className="ei-kicker">{activeHero.kicker}</p>}
           <h1 id="home-title">{activeHero.title}</h1>
           <p>{activeHero.copy}</p>
-          <div className="ei-actions">
-            <Link className="ei-button ei-button-bright" href="/foreign-job-vacancies/">
-              Explore foreign jobs
-              <span className="ei-button__icon-wrapper">
-                <svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="ei-button__icon-svg" width={10} height={10}>
-                  <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />
-                </svg>
-                <svg viewBox="0 0 14 15" fill="none" width={10} height={10} xmlns="http://www.w3.org/2000/svg" className="ei-button__icon-svg ei-button__icon-svg--copy">
-                  <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />
-                </svg>
-              </span>
-            </Link>
-            <Link className="ei-text-action" href="/client-recruitment-solutions/">Hire exceptional talent <span aria-hidden="true">→</span></Link>
-          </div>
+          {(activeHero.ctaLabel && activeHero.ctaUrl) || (activeHero.cta2Label && activeHero.cta2Url) ? (
+            <div className="ei-actions">
+              {activeHero.ctaLabel && activeHero.ctaUrl && (
+                <Link className="ei-button ei-button-bright" href={activeHero.ctaUrl}>
+                  {activeHero.ctaLabel}
+                  <span className="ei-button__icon-wrapper">
+                    <svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="ei-button__icon-svg" width={10} height={10}>
+                      <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />
+                    </svg>
+                    <svg viewBox="0 0 14 15" fill="none" width={10} height={10} xmlns="http://www.w3.org/2000/svg" className="ei-button__icon-svg ei-button__icon-svg--copy">
+                      <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />
+                    </svg>
+                  </span>
+                </Link>
+              )}
+              {activeHero.cta2Label && activeHero.cta2Url && (
+                <Link className="ei-text-action" href={activeHero.cta2Url}>{activeHero.cta2Label} <span aria-hidden="true">→</span></Link>
+              )}
+            </div>
+          ) : null}
         </div>
       </div>
       <div className="container ei-hero-foot" aria-label="Company credentials"><span>Licensed by SLBFE</span><span>License No. 1162</span><span>Europe · Middle East · Asia · Africa</span></div>

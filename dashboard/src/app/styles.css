@@ -205,7 +205,6 @@ textarea:focus-visible,
   gap: 0.7rem;
 }
 
-.dashboard-brand > span,
 .setup-icon {
   display: grid;
   place-items: center;
@@ -220,18 +219,25 @@ textarea:focus-visible,
   font-weight: 700;
 }
 
-.dashboard-brand strong {
-  display: grid;
-  font-size: 0.88rem;
-  font-weight: 650;
-  line-height: 1.15;
+/* The wordmark artwork is pure white on transparent, so it is used as a mask
+   and painted with --ink. That keeps one asset legible in both themes instead
+   of shipping a second, dark-on-light copy of the logo. */
+.dashboard-brand-logo {
+  flex: none;
+  width: 120px;
+  height: 31px;
+  background-color: var(--ink);
+  -webkit-mask: url("/assets/emerald-isle-logo.webp") left center / contain
+    no-repeat;
+  mask: url("/assets/emerald-isle-logo.webp") left center / contain no-repeat;
 }
 
 .dashboard-brand small {
-  margin-top: 0.15rem;
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--hairline-strong);
   color: var(--muted);
-  font-size: 0.7rem;
-  font-weight: 500;
+  font-size: 0.72rem;
+  font-weight: 600;
 }
 
 .dashboard-header nav {
@@ -544,10 +550,16 @@ td small {
    keep the neutral base pill; red is reserved for states needing attention. */
 .status-expired,
 .status-popup-ended,
-.status-app-rejected {
+.status-app-rejected,
+.status-urgent {
   color: var(--red);
   border-color: rgba(229, 128, 128, 0.22);
   background: rgba(229, 128, 128, 0.06);
+}
+
+/* Non-urgent is the norm, so the pill stays quiet beside an Urgent row. */
+.status-standard {
+  opacity: 0.7;
 }
 
 .row-actions {
@@ -784,9 +796,10 @@ select option {
   list-style: none;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-m);
-  background: linear-gradient(180deg, rgba(34, 48, 41, 0.62), rgba(14, 22, 18, 0.78));
-  -webkit-backdrop-filter: blur(28px) saturate(1.7);
-  backdrop-filter: blur(28px) saturate(1.7);
+  /* Opaque on purpose: an open list overlaps form fields and table rows, and
+     any translucency makes the options unreadable. These are the previous
+     glass values already composited over --canvas, so the look is unchanged. */
+  background: linear-gradient(180deg, #182420, #0c1511);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16),
     0 24px 50px -12px rgba(0, 0, 0, 0.65);
   transform-origin: top center;
@@ -1640,7 +1653,8 @@ td a[href^="mailto:"]:hover {
 
 :root[data-theme="light"] .status-expired,
 :root[data-theme="light"] .status-popup-ended,
-:root[data-theme="light"] .status-app-rejected {
+:root[data-theme="light"] .status-app-rejected,
+:root[data-theme="light"] .status-urgent {
   border-color: rgba(179, 64, 63, 0.3);
   background: rgba(179, 64, 63, 0.07);
 }
@@ -1671,7 +1685,7 @@ td a[href^="mailto:"]:hover {
 
 :root[data-theme="light"] .glass-select-list {
   border-color: rgba(9, 32, 22, 0.14);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(246, 250, 247, 0.92));
+  background: linear-gradient(180deg, #ffffff, #f6faf7);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95),
     0 24px 50px -12px rgba(15, 40, 28, 0.3);
 }

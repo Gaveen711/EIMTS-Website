@@ -1,4 +1,5 @@
 import type { PopupRecord } from "@eimts/database";
+import { toColomboDateInput } from "@/lib/dates";
 import { ImageDropzone } from "./ImageDropzone";
 import { SubmitButton } from "./SubmitButton";
 import { Toggle } from "./Toggle";
@@ -62,7 +63,7 @@ export function PopupForm({ action, popup }: Props) {
             <input
               name="starts_at"
               type="date"
-              defaultValue={popup?.starts_at?.slice(0, 10) || ""}
+              defaultValue={toColomboDateInput(popup?.starts_at)}
             />
           </label>
           <label>
@@ -70,7 +71,7 @@ export function PopupForm({ action, popup }: Props) {
             <input
               name="ends_at"
               type="date"
-              defaultValue={popup?.ends_at?.slice(0, 10) || ""}
+              defaultValue={toColomboDateInput(popup?.ends_at)}
             />
           </label>
         </div>
