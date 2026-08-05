@@ -17,7 +17,8 @@
     "build:dashboard": "npm run build --workspace=@eimts/dashboard",
     "start": "next start",
     "lint": "tsc --noEmit && npm run lint --workspace=@eimts/dashboard",
-    "test": "npm run build"
+    "test": "npm run build",
+    "deploy": "vercel --prod && vercel --prod --project eimts-website-dashboard"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
