@@ -53,6 +53,22 @@ export async function POST(request: Request) {
   const supabase = createClient(url, publishableKey, {
     auth: { persistSession: false },
   });
+
+  // The vacancy is resolved from the database rather than the submitted form,
+  // so the stored application and the recruitment email always name the real
+  // job. Visitors only ever see published, unexpired vacancies, so a missing
+  // row also means the vacancy closed between opening the page and applying —
+  // catching it here avoids uploading a CV the insert would then reject.
+  const { data: job } = await supabase
+    .from("jobs")
+    .select("title")
+    .eq("id", jobId)
+    .maybeSingle();
+
+  if (!job) {
+    return failure("This vacancy is no longer accepting online applications.");
+  }
+
   const extension = cv.name.split(".").pop()?.toLowerCase() || "bin";
   const cvPath = `${jobId}/${crypto.randomUUID()}.${extension}`;
   const bytes = await cv.arrayBuffer();
@@ -93,7 +109,7 @@ export async function POST(request: Request) {
   // fail the candidate's submission — it is logged for follow-up instead.
   try {
     const result = await sendApplicationEmail({
-      jobTitle: String(formData.get("job_title") || "Vacancy").slice(0, 200),
+      jobTitle: job.title,
       fullName,
       age,
       email,

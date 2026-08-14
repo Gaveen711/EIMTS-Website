@@ -1,6 +1,6 @@
 .branch-map-section {
   position: relative;
-  padding: clamp(88px, 9vw, 132px) 0;
+  padding: clamp(68px, 7vw, 96px) 0;
   overflow: hidden;
   background: #fff;
 }

@@ -2,13 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 
-export function JobApplicationForm({
-  jobId,
-  jobTitle,
-}: {
-  jobId: string;
-  jobTitle: string;
-}) {
+export function JobApplicationForm({ jobId }: { jobId: string }) {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -52,8 +46,8 @@ export function JobApplicationForm({
 
   return (
     <form onSubmit={submit}>
+      {/* The vacancy title is resolved server-side from this id. */}
       <input type="hidden" name="job_id" value={jobId} />
-      <input type="hidden" name="job_title" value={jobTitle} />
       <label>
         Full name
         <input name="name" autoComplete="name" required />

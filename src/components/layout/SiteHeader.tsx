@@ -138,6 +138,7 @@ export function SiteHeader() {
         <a href={routes.employer}>Employer</a>
         <a href={routes.projects}>Projects</a>
         <a href={routes.blog}>Blogs</a>
+        <a href={routes.contact}>Contact Us</a>
       </nav>
       <a className="register-pill" href="https://registration.emeraldislemanpower.com/">
         <span className="register-pill__icon-wrapper">

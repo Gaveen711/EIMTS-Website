@@ -356,6 +356,12 @@ textarea:focus-visible,
   animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* The applications table carries seven columns, so it is given more room
+   than the editor-style pages, which read better kept narrow. */
+.dashboard-main-wide {
+  width: min(1520px, 95vw);
+}
+
 .dashboard-title,
 .editor-title {
   display: flex;
@@ -420,6 +426,57 @@ textarea:focus-visible,
   line-height: 1;
 }
 
+/* A box per pipeline status sits beside the running total, so six fit on one
+   row before wrapping. */
+.metric-grid-compact {
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+}
+
+/* Status boxes borrow the colour of the matching row pill, so a count and the
+   value chosen in the dropdown are recognisably the same thing. */
+.metric-status {
+  --accent: var(--muted);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-status::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0.75;
+}
+
+.metric-status span {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.metric-status span::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.metric-app-new {
+  --accent: var(--amber);
+}
+
+.metric-app-shortlisted,
+.metric-app-hired {
+  --accent: var(--emerald-bright);
+}
+
+.metric-app-rejected {
+  --accent: var(--red);
+}
+
 /* ---------- Cards & table ---------- */
 
 .jobs-table-card,
@@ -452,6 +509,7 @@ textarea:focus-visible,
 }
 
 .table-scroll {
+  position: relative;
   overflow-x: auto;
 }
 
@@ -1090,17 +1148,108 @@ select option {
 
 /* ---------- Applications ---------- */
 
+/* The table takes the full width and the vacancy summary sits underneath it,
+   rather than stealing a 280px rail the seven columns cannot spare. */
+/* minmax(0, 1fr) lets the column shrink past the table's min-width, so a
+   narrow window scrolls the table inside its card rather than the whole page. */
 .applications-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.2rem;
 }
 
+/* Fixed layout holds the declared column widths, so a long vacancy title wraps
+   to two lines instead of stacking into a five-line column and pushing the CV
+   link out of view. */
+.applications-table {
+  table-layout: fixed;
+  min-width: 1120px;
+}
+
+.applications-table th,
+.applications-table td {
+  padding: 0.9rem 1rem;
+}
+
+.applications-table .col-candidate {
+  width: 16%;
+}
+
+.applications-table .col-age {
+  width: 74px;
+}
+
+.applications-table .col-vacancy {
+  width: 25%;
+}
+
+.applications-table .col-contact {
+  width: 20%;
+}
+
+.applications-table .col-received {
+  width: 116px;
+}
+
+.applications-table .col-status {
+  width: 230px;
+}
+
+.applications-table .col-cv {
+  width: 118px;
+}
+
+.cell-age {
+  font-variant-numeric: tabular-nums;
+}
+
+td.cell-age {
+  font-weight: 600;
+}
+
+.cell-vacancy a,
+.cell-vacancy strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.cell-vacancy a {
+  transition: color 0.15s ease;
+}
+
+.cell-vacancy a:hover {
+  color: var(--emerald-bright);
+}
+
+.cell-vacancy small {
+  margin-top: 0.3rem;
+}
+
+.cell-received {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* The CV cell holds a single link, so it stays a real table cell and centres
+   with the rest of the row instead of floating at the top as a flex box. */
+.applications-table td.row-actions {
+  display: table-cell;
+  text-align: right;
+  vertical-align: middle;
+}
+
 .vacancy-counts ul {
-  max-height: 430px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.5rem;
+  max-height: 420px;
   margin: 0;
-  padding: 0.45rem 0;
+  padding: 1.1rem 1.4rem 1.4rem;
   overflow-y: auto;
   list-style: none;
 }
@@ -1110,12 +1259,11 @@ select option {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  padding: 0.6rem 1.4rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--hairline-faint);
+  border-radius: var(--radius-s);
+  background: var(--glass);
   font-size: 0.84rem;
-}
-
-.vacancy-counts li + li {
-  border-top: 1px solid var(--hairline-faint);
 }
 
 .vacancy-counts li span {
@@ -1265,8 +1413,7 @@ td a[href^="mailto:"]:hover {
   }
 
   .editor-form,
-  .form-section,
-  .applications-layout {
+  .form-section {
     grid-template-columns: 1fr;
   }
 

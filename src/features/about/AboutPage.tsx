@@ -26,7 +26,7 @@ const leaders: Leader[] = [
   { name: "Hemantha Sapumohotti", role: "Chief Executive Officer", initials: "HS", image: "/assets/leadership/hemantha.webp" },
   { name: "Linda Gray, MBA (UWS, Australia)", role: "Talent & Culture Director", initials: "LG", image: "/assets/leadership/linda.webp" },
   { name: "Dr. Tara Giovanna, MB, BCh, BAO (Hons)", role: "Director", initials: "TG", image: "/assets/leadership/tara.webp" },
-  { name: "Melani White", role: "Operations Manager", initials: "MW", image: "/assets/leadership/melani.webp" },
+  { name: "Dharshini", role: "Business Development Manager", initials: "D", image: "/assets/leadership/dharshini.webp" },
   { name: "Angeline Cooke", role: "Senior Administrative Manager", initials: "AC", image: "/assets/leadership/angeline.webp" },
 ];
 const leadershipMessages: LeadershipMessage[] = [
@@ -126,7 +126,6 @@ export default function AboutPage() {
                 : <span className="ei-leader-placeholder" aria-hidden="true">{leader.initials}</span>}
             </div>
             <div className="ei-leader-details">
-
               <h3>{leader.name}</h3>
               <p>{leader.role}</p>
             </div>

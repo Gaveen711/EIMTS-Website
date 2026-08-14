@@ -1,4 +1,5 @@
 import type { ApplicationRecord } from "@eimts/database";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { updateApplicationStatus } from "@/app/actions";
 import { DashboardHeader } from "@/components/DashboardHeader";
@@ -9,7 +10,12 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 type ApplicationRow = ApplicationRecord & {
-  jobs: { title: string } | null;
+  jobs: {
+    id: string;
+    title: string;
+    country: string;
+    category: string;
+  } | null;
 };
 
 const statusOptions = [
@@ -21,6 +27,14 @@ const statusOptions = [
 ];
 
 const TABLE_LIMIT = 100;
+
+// The vacancy stored with the CV wins over the live job, so renaming a job
+// never relabels applications already received against it.
+function vacancyName(application: ApplicationRow) {
+  return (
+    application.job_title || application.jobs?.title || "Vacancy unavailable"
+  );
+}
 
 export default async function ApplicationsPage() {
   if (!isSupabaseConfigured()) return <SetupRequired />;
@@ -41,20 +55,23 @@ export default async function ApplicationsPage() {
 
   const { data } = await supabase
     .from("applications")
-    .select("*,jobs(title)")
+    .select("*,jobs(id,title,country,category)")
     .order("created_at", { ascending: false });
   const applications = (data || []) as unknown as ApplicationRow[];
 
-  const totals = {
-    all: applications.length,
-    new: applications.filter((a) => a.status === "new").length,
-    shortlisted: applications.filter((a) => a.status === "shortlisted").length,
-    hired: applications.filter((a) => a.status === "hired").length,
-  };
+  // Every status an admin can pick gets its own box, so the totals cannot
+  // drift from the options in the dropdown.
+  const statusTotals = new Map(statusOptions.map((option) => [option.value, 0]));
+  for (const application of applications) {
+    statusTotals.set(
+      application.status,
+      (statusTotals.get(application.status) || 0) + 1,
+    );
+  }
 
   const byVacancy = [...applications
     .reduce((counts, application) => {
-      const title = application.jobs?.title || "Vacancy unavailable";
+      const title = vacancyName(application);
       counts.set(title, (counts.get(title) || 0) + 1);
       return counts;
     }, new Map<string, number>())]
@@ -81,7 +98,7 @@ export default async function ApplicationsPage() {
   return (
     <div className="dashboard-shell">
       <DashboardHeader email={user.email || "Staff"} />
-      <main className="dashboard-main">
+      <main className="dashboard-main dashboard-main-wide">
         <section className="dashboard-title">
           <div>
             <p className="eyebrow">Candidate pipeline</p>
@@ -93,23 +110,23 @@ export default async function ApplicationsPage() {
           </div>
         </section>
 
-        <section className="metric-grid" aria-label="Application totals">
+        <section
+          className="metric-grid metric-grid-compact"
+          aria-label="Application totals"
+        >
           <article>
             <span>CVs received</span>
-            <strong>{totals.all}</strong>
+            <strong>{applications.length}</strong>
           </article>
-          <article>
-            <span>New</span>
-            <strong>{totals.new}</strong>
-          </article>
-          <article>
-            <span>Shortlisted</span>
-            <strong>{totals.shortlisted}</strong>
-          </article>
-          <article>
-            <span>Hired</span>
-            <strong>{totals.hired}</strong>
-          </article>
+          {statusOptions.map((option) => (
+            <article
+              key={option.value}
+              className={`metric-status metric-app-${option.value}`}
+            >
+              <span>{option.label}</span>
+              <strong>{statusTotals.get(option.value) || 0}</strong>
+            </article>
+          ))}
         </section>
 
         <div className="applications-layout">
@@ -124,10 +141,20 @@ export default async function ApplicationsPage() {
             </div>
             {recent.length ? (
               <div className="table-scroll">
-                <table>
+                <table className="applications-table">
+                  <colgroup>
+                    <col className="col-candidate" />
+                    <col className="col-age" />
+                    <col className="col-vacancy" />
+                    <col className="col-contact" />
+                    <col className="col-received" />
+                    <col className="col-status" />
+                    <col className="col-cv" />
+                  </colgroup>
                   <thead>
                     <tr>
                       <th>Candidate</th>
+                      <th className="cell-age">Age</th>
                       <th>Vacancy</th>
                       <th>Contact</th>
                       <th>Received</th>
@@ -140,13 +167,32 @@ export default async function ApplicationsPage() {
                   <tbody>
                     {recent.map((application) => {
                       const cvUrl = urlByPath.get(application.cv_path);
+                      const vacancy = vacancyName(application);
+                      const vacancyMeta = [
+                        application.jobs?.country,
+                        application.jobs?.category,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ");
                       return (
                         <tr key={application.id}>
                           <td>
                             <strong>{application.full_name}</strong>
-                            <small>Age {application.age}</small>
                           </td>
-                          <td>{application.jobs?.title || "Vacancy unavailable"}</td>
+                          <td className="cell-age">{application.age}</td>
+                          <td className="cell-vacancy">
+                            {application.jobs ? (
+                              <Link
+                                href={`/jobs/${application.jobs.id}`}
+                                title={vacancy}
+                              >
+                                {vacancy}
+                              </Link>
+                            ) : (
+                              <strong title={vacancy}>{vacancy}</strong>
+                            )}
+                            {vacancyMeta && <small>{vacancyMeta}</small>}
+                          </td>
                           <td>
                             <a href={`mailto:${application.email}`}>
                               {application.email}
@@ -155,7 +201,7 @@ export default async function ApplicationsPage() {
                               <small>{application.phone}</small>
                             )}
                           </td>
-                          <td>
+                          <td className="cell-received">
                             {dateFormat.format(new Date(application.created_at))}
                           </td>
                           <td>
@@ -214,7 +260,7 @@ export default async function ApplicationsPage() {
             )}
           </section>
 
-          <aside className="jobs-table-card vacancy-counts">
+          <section className="jobs-table-card vacancy-counts">
             <div className="table-heading">
               <h2>CVs by vacancy</h2>
               <span>{byVacancy.length} vacancies</span>
@@ -223,7 +269,7 @@ export default async function ApplicationsPage() {
               <ul>
                 {byVacancy.map(([title, count]) => (
                   <li key={title}>
-                    <span>{title}</span>
+                    <span title={title}>{title}</span>
                     <strong>{count}</strong>
                   </li>
                 ))}
@@ -233,7 +279,7 @@ export default async function ApplicationsPage() {
                 <p>Counts appear once the first CV arrives.</p>
               </div>
             )}
-          </aside>
+          </section>
         </div>
       </main>
     </div>
