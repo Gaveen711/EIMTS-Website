@@ -155,20 +155,39 @@ where id = (
 
 ---
 
-## Available Scripts
+## Available Scripts & Commands
 
-From the repository root:
+All workspace commands can be run from the root repository directory:
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Starts the public website dev server on port 3000 |
-| `npm run dev:dashboard` | Starts the staff dashboard dev server on port 3001 |
-| `npm run build` | Builds both the public website and dashboard for production |
-| `npm run build:web` | Builds the public website only |
-| `npm run build:dashboard` | Builds the dashboard only |
-| `npm run lint` | Runs TypeScript checks across the root and dashboard workspaces |
-| `npm run test` | Validates production builds |
-| `npm run deploy` | Deploys public website and dashboard to Vercel production |
+### Development Commands
+
+| Command | Action / Workspace | Description |
+| --- | --- | --- |
+| `npm run dev` | Public Website (`root`) | Starts Next.js development server on `http://localhost:3000` |
+| `npm run dev:dashboard` | Staff Dashboard (`@eimts/dashboard`) | Starts Dashboard development server on `http://localhost:3001` |
+| `npm run start` | Public Website (`root`) | Starts Next.js production server on port 3000 after building |
+| `npm run start --workspace=@eimts/dashboard` | Staff Dashboard (`@eimts/dashboard`) | Starts Dashboard production server on port 3001 after building |
+
+### Build & Typecheck Commands
+
+| Command | Action / Workspace | Description |
+| --- | --- | --- |
+| `npm run build` | Full Monorepo | Sequentially builds both the public website and the staff dashboard |
+| `npm run build:web` | Public Website (`root`) | Builds the public website production bundle |
+| `npm run build:dashboard` | Staff Dashboard (`@eimts/dashboard`) | Builds the staff dashboard production bundle |
+| `npm run lint` | Full Monorepo | Runs TypeScript compiler checks (`tsc --noEmit`) across root and dashboard workspaces |
+| `npm run test` | Full Monorepo | Validates all production builds (`npm run build`) |
+
+### Production Deployment Commands (Vercel CLI)
+
+| Command | Target | Description |
+| --- | --- | --- |
+| `npm run deploy` | Both Projects | Deploys public website and dashboard to Vercel production |
+| `vercel --prod` | Public Website (`eimts-website`) | Deploys public website to production (`emeraldislemanpower.com`) |
+| `vercel --prod --project eimts-website-dashboard` | Dashboard (`eimts-website-dashboard`) | Deploys staff dashboard to production (`admin.emeraldislemanpower.com`) |
+| `vercel` | Preview / Staging | Creates a preview deployment for the public website |
+| `vercel --project eimts-website-dashboard` | Preview / Staging | Creates a preview deployment for the dashboard |
+
 
 ---
 
