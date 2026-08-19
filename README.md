@@ -174,18 +174,37 @@ From the repository root:
 
 ## Production Deployment
 
-Recommended architecture:
+### Deployment Architecture
 
 ```text
-emeraldislemanpower.com        ──► Public Next.js website (Vercel / Node runtime)
-admin.emeraldislemanpower.com  ──► Private staff dashboard (Vercel / Node runtime)
+emeraldislemanpower.com        ──► Public Next.js website (Vercel Project: eimts-website)
+admin.emeraldislemanpower.com  ──► Private staff dashboard (Vercel Project: eimts-website-dashboard)
 Supabase                       ──► PostgreSQL, Authentication & Secure Storage
 SMTP Server                    ──► Email delivery for candidate submissions
 ```
 
-- **Domain**: `emeraldislemanpower.com` (managed via Hostinger DNS or pointing to Vercel).
-- **Public Site**: Fast edge caching, ISR/SSR for job pages, optimized asset delivery.
-- **Dashboard**: Secure SSR authentication using `@supabase/ssr` cookies and middleware.
+### Vercel Deployment Commands
+
+Because this is an npm monorepo with two distinct Vercel projects linked under `.vercel/repo.json`, use the following commands from the repository root:
+
+#### 1. Deploy Both Applications (Recommended)
+```bash
+npm run deploy
+```
+*This executes `vercel --prod && vercel --prod --project eimts-website-dashboard` in sequence.*
+
+#### 2. Deploy Public Website Only
+```bash
+vercel --prod
+```
+
+#### 3. Deploy Dashboard Only
+```bash
+vercel --prod --project eimts-website-dashboard
+```
+
+> **Note on Vercel CLI**: Do NOT run `vercel dashboard` as Vercel CLI treats positional arguments as path overrides, leading to a path error (`dashboard/dashboard`). Always use the `--project eimts-website-dashboard` flag to deploy the dashboard.
+
 
 ---
 

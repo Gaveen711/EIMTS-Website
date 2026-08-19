@@ -174,14 +174,32 @@ From the repository root:
 
 ## Production Deployment
 
-Recommended architecture:
+Recommended production arrangement:
 
 ```text
-emeraldislemanpower.com        ──► Public Next.js website (Vercel / Node runtime)
-admin.emeraldislemanpower.com  ──► Private staff dashboard (Vercel / Node runtime)
-Supabase                       ──► PostgreSQL, Authentication & Secure Storage
-SMTP Server                    ──► Email delivery for candidate submissions
+emeraldislemanpower.com        Public Next.js website (Vercel Project: eimts-website)
+admin.emeraldislemanpower.com  Private staff dashboard (Vercel Project: eimts-website-dashboard)
+Supabase                       Database, authentication, and storage
 ```
+
+### Vercel Deployment Commands
+
+From the workspace root:
+
+- **Deploy Both Apps**:
+  ```bash
+  npm run deploy
+  ```
+- **Deploy Public Website Only**:
+  ```bash
+  vercel --prod
+  ```
+- **Deploy Dashboard Only**:
+  ```bash
+  vercel --prod --project eimts-website-dashboard
+  ```
+
+*(Note: Do not pass folder paths like `vercel dashboard` directly to Vercel CLI in this repo; use `--project eimts-website-dashboard`)*.
 
 - **Domain**: `emeraldislemanpower.com` (managed via Hostinger DNS or pointing to Vercel).
 - **Public Site**: Fast edge caching, ISR/SSR for job pages, optimized asset delivery.

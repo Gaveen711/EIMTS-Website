@@ -40,13 +40,20 @@ modified.
 Shared TypeScript database contracts live in `packages/database/`.
 
 ## Deployment shape
-
+ 
 ```text
-emeraldislemanpower.com       public Next.js website
-admin.emeraldislemanpower.com private Next.js dashboard
+emeraldislemanpower.com       public Next.js website (Vercel: eimts-website)
+admin.emeraldislemanpower.com private Next.js dashboard (Vercel: eimts-website-dashboard)
 Supabase                       database, staff authentication and storage
 ```
 
 The public site and dashboard use the same Supabase project but have different
 deployment surfaces. Database security is enforced server-side through
 row-level security, not only by hiding dashboard links.
+
+### Deployment Commands (Vercel CLI)
+
+- **Deploy Both (Root script)**: `npm run deploy`
+- **Deploy Public Website Only**: `vercel --prod`
+- **Deploy Dashboard Only**: `vercel --prod --project eimts-website-dashboard`
+
