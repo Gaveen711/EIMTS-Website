@@ -1,6 +1,6 @@
 # Emerald Isle Manpower & Travel Services (EIMTS)
 
-This repository contains the Next.js web ecosystem for Emerald Isle Manpower & Travel Services: the high-performance public marketing and job board website, a private staff content dashboard, shared database contracts, and the Supabase database schema for vacancies, popups, hero slides, and candidate applications.
+This repository contains the Next.js web ecosystem for Emerald Isle Manpower & Travel Services: the high-performance public marketing and job board website, a private staff content dashboard, shared database contracts, and the Supabase database schema for vacancies, projects, popups, hero slides, and candidate applications.
 
 The platform was migrated from a static React/Vite frontend with hardcoded vacancy data and WordPress/PHP dependencies to a modern, SEO-optimised Next.js application backed by Supabase and automated email notifications.
 
@@ -51,6 +51,7 @@ EIMTS-Website/
 - **Job Management**: Create, edit, draft, publish, pause, and expire vacancy listings, with urgent/featured flags and expiry scheduling.
 - **Hero Carousel & Takeovers**: Manage hero carousel slides, sort ordering, active time windows, and full hero takeovers (e.g. for anniversaries, holidays, or major announcements).
 - **Promotional Popups**: Create and schedule modal popups with custom banners, CTAs, and active timeframes.
+- **Project Galleries**: Admin-only project CRUD, gallery ordering, hero selection, crop control, and automatic WebP uploads to Supabase Storage.
 - **Candidate Applications Review**: View candidate submissions, application statuses, job snapshots, and generate short-lived signed URLs to view candidate CVs.
 - **SEO-Protected**: Excluded from search engines (`noindex, nofollow`).
 
@@ -58,6 +59,7 @@ EIMTS-Website/
 - **PostgreSQL Database** with full Row-Level Security (RLS).
 - **Storage Buckets**:
   - `job-media`: Public bucket for job posters and promotional banners.
+  - `project-media`: Public WebP-only bucket for project galleries.
   - `candidate-cvs`: Private, secure storage for applicant CVs accessible only by authenticated staff members.
 - **Automated Triggers**: Auto-updates timestamps and snapshots vacancy titles on candidate application records.
 
@@ -136,6 +138,7 @@ All database schemas, RLS policies, and triggers are located in `supabase/migrat
 2. `202608010001_popups.sql` — `popups` table and RLS policies for promotional modal popups.
 3. `202608040001_hero_slides.sql` — `hero_slides` table and seeds for the homepage carousel.
 4. `202608140001_application_vacancy_snapshot.sql` — Trigger and snapshot logic for preserving job titles on applications.
+5. `202608240001_projects.sql` — Project content, admin-only RLS, seeded galleries, and the WebP-only `project-media` bucket.
 
 ### Initializing Supabase
 1. Create a Supabase project at [supabase.com](https://supabase.com).
@@ -177,6 +180,7 @@ All workspace commands can be run from the root repository directory:
 | `npm run build:dashboard` | Staff Dashboard (`@eimts/dashboard`) | Builds the staff dashboard production bundle |
 | `npm run lint` | Full Monorepo | Runs TypeScript compiler checks (`tsc --noEmit`) across root and dashboard workspaces |
 | `npm run test` | Full Monorepo | Validates all production builds (`npm run build`) |
+| `npm run images:projects:webp` | Public assets | Converts any legacy JPG project photos to optimized WebP files; pass `-- --remove-source` to remove converted JPG sources. |
 
 ### Production Deployment Commands (Vercel CLI)
 

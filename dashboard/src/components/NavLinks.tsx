@@ -8,6 +8,7 @@ const links = [
   { href: "/applications", label: "Applications" },
   { href: "/popups", label: "Popups" },
   { href: "/hero", label: "Hero" },
+  { href: "/projects", label: "Projects" },
 ];
 
 function isActive(href: string, pathname: string) {

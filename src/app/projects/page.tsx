@@ -1,4 +1,5 @@
 import ProjectsPage from "@/features/projects/ProjectsPage";
+import { getPublishedProjects } from "@/lib/projects";
 import { pageMetadata } from "@/lib/site";
 
 export const metadata = pageMetadata(
@@ -7,6 +8,9 @@ export const metadata = pageMetadata(
   "/projects",
 );
 
-export default function Page() {
-  return <ProjectsPage />;
+export const revalidate = 60;
+
+export default async function Page() {
+  const projects = await getPublishedProjects();
+  return <ProjectsPage projects={projects} />;
 }

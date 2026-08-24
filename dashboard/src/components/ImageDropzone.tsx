@@ -1,9 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
+import {
+  acceptedSourceImageExtensions,
+  uploadWebpImage,
+} from "@/lib/image-upload";
 import { createClient } from "@/lib/supabase/browser";
-
-const acceptedTypes = ["image/jpeg", "image/png", "image/webp"];
 
 type Props = {
   defaultUrl?: string | null;
@@ -17,25 +19,19 @@ export function ImageDropzone({
   defaultUrl,
   folder = "covers",
   label = "Job image",
-  hint = "JPG, PNG or WebP — up to 5 MB. Shown on the job card and job page.",
+  hint = "JPG, PNG or WebP — converted to an optimized WebP before upload.",
   required,
 }: Props) {
   const [url, setUrl] = useState(defaultUrl || "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [result, setResult] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function upload(file: File) {
     setError("");
-    if (!acceptedTypes.includes(file.type)) {
-      setError("Use a JPG, PNG or WebP image.");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setError("The image must be 5 MB or smaller.");
-      return;
-    }
+    setResult("");
 
     const supabase = createClient();
     if (!supabase) {
@@ -44,20 +40,26 @@ export function ImageDropzone({
     }
 
     setBusy(true);
-    const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${folder}/${crypto.randomUUID()}.${extension}`;
-    const { error: uploadError } = await supabase.storage
-      .from("job-media")
-      .upload(path, file, { contentType: file.type, upsert: false });
-    setBusy(false);
-
-    if (uploadError) {
-      setError(uploadError.message);
-      return;
+    try {
+      const uploaded = await uploadWebpImage({
+        supabase,
+        bucket: "job-media",
+        folder,
+        file,
+      });
+      setUrl(uploaded.url);
+      setResult(
+        `WebP ready — ${Math.max(1, Math.round(uploaded.storedBytes / 1024))} KB, ${uploaded.width} × ${uploaded.height}px.`,
+      );
+    } catch (uploadError) {
+      setError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : "The image could not be uploaded.",
+      );
+    } finally {
+      setBusy(false);
     }
-
-    const { data } = supabase.storage.from("job-media").getPublicUrl(path);
-    setUrl(data.publicUrl);
   }
 
   function pickFile() {
@@ -120,7 +122,7 @@ export function ImageDropzone({
       <input
         ref={inputRef}
         type="file"
-        accept={acceptedTypes.join(",")}
+        accept={acceptedSourceImageExtensions}
         hidden
         onChange={(event) => {
           const file = event.target.files?.[0];
@@ -128,6 +130,7 @@ export function ImageDropzone({
           event.target.value = "";
         }}
       />
+      {result && <p className="form-success">{result}</p>}
       {error && <p className="form-message">{error}</p>}
     </div>
   );

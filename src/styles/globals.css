@@ -1349,6 +1349,7 @@ input,select,textarea,button{max-inline-size:100%}
 .projects-hero-panel:hover .projects-hero-client:after,.projects-hero-panel:focus-visible .projects-hero-client:after{width:78px}
 .projects-hero-cue{display:block;margin-top:12px;color:var(--ei-amber);font-size:13px;font-weight:700;letter-spacing:.04em;opacity:0;transform:translateY(8px);transition:opacity .45s var(--ei-ease) .12s,transform .45s var(--ei-ease) .12s}
 .projects-hero-panel:hover .projects-hero-cue,.projects-hero-panel:focus-visible .projects-hero-cue{opacity:1;transform:none}
+.projects-empty{display:grid;place-items:center;flex:1;min-height:320px;border-top:1px solid rgba(244,245,240,.18);color:#b9cdc4;text-align:center}
 .project-showcase{padding:clamp(78px,9vw,130px) 0 clamp(90px,10vw,150px);background:#f4f5ef}
 .project-showcase-heading{display:flex;align-items:end;justify-content:space-between;gap:32px;margin-bottom:clamp(42px,6vw,76px);border-bottom:1px solid #bdc9c2;padding-bottom:25px}
 .project-showcase-heading p{margin:0 0 8px;color:#63746b;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
@@ -1358,8 +1359,9 @@ input,select,textarea,button{max-inline-size:100%}
 .project-showcase-card h3{position:relative;margin:0 0 clamp(28px,4vw,48px);padding-left:20px;color:#0a3c30;font:620 clamp(2rem,4vw,4.5rem)/.98 var(--font-sans);letter-spacing:-.045em}
 .project-showcase-card h3:before{content:"";position:absolute;left:0;top:.08em;width:5px;height:.8em;border-radius:999px;background:var(--ei-amber)}
 .project-showcase-gallery{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(8px,1.2vw,16px)}
-.project-showcase-image{min-width:0;overflow:hidden;background:#dfe6e1;box-shadow:0 20px 48px rgba(5,50,39,.12)}
-.project-showcase-image img{width:100%;height:100%;object-fit:cover;will-change:transform}
+.project-showcase-image{position:relative;min-width:0;overflow:hidden;background:#dfe6e1;box-shadow:0 20px 48px rgba(5,50,39,.12)}
+.project-showcase-image-media{position:absolute;inset:0;will-change:transform}
+.project-showcase-image img{width:100%;height:100%;object-fit:cover}
 .project-showcase-gallery--2{grid-auto-rows:clamp(260px,31vw,450px)}
 .project-showcase-gallery--2 .project-showcase-image{grid-column:span 6}
 .project-showcase-gallery--4{grid-auto-rows:clamp(230px,25vw,360px)}
@@ -1402,7 +1404,7 @@ input,select,textarea,button{max-inline-size:100%}
   .project-showcase-gallery--4 .project-showcase-image:last-child,.project-showcase-gallery--6 .project-showcase-image:last-child{grid-column:span 2!important}
   .project-showcase-card h3{padding-left:16px}
 }
-@media(prefers-reduced-motion:reduce){.project-showcase-image img,.projects-hero-panel,.projects-hero-panel img{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.project-showcase-image-media,.projects-hero-panel,.projects-hero-panel img{transition:none!important}}
 /* Homepage employer inquiry dialog */
 .employer-inquiry-dialog{width:min(920px,calc(100% - 32px));max-width:none;max-height:calc(100dvh - 32px);padding:0;border:0;background:transparent;color:var(--ei-ink);overflow:auto}
 .employer-inquiry-dialog::backdrop{background:rgba(3,39,31,.78)}

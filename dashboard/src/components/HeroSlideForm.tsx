@@ -53,7 +53,7 @@ export function HeroSlideForm({ action, slide }: Props) {
             defaultUrl={slide?.image_url}
             folder="hero"
             label="Background image"
-            hint="JPG, PNG or WebP — up to 5 MB. Fills the whole hero area behind the text."
+            hint="JPG, PNG or WebP — resized and converted to WebP before upload."
             required
           />
           <label>

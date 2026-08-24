@@ -71,6 +71,29 @@ export type HeroSlideRecord = {
   updated_at: string;
 };
 
+export type ProjectImageRecord = {
+  id: string;
+  image_url: string;
+  storage_path: string | null;
+  alt_text: string;
+};
+
+export type ProjectRecord = {
+  id: string;
+  slug: string;
+  name: string;
+  country: string;
+  client: string;
+  images: ProjectImageRecord[];
+  hero_image_id: string;
+  hero_position_x: number;
+  hero_position_y: number;
+  sort_order: number;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type PopupRecord = {
   id: string;
   title: string;

@@ -1075,6 +1075,265 @@ select option {
   background: var(--glass-2);
 }
 
+.form-success {
+  margin: 0;
+  color: var(--emerald-bright);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* ---------- Project gallery editor ---------- */
+
+.project-form-section {
+  grid-template-columns: 190px minmax(0, 1fr);
+}
+
+.project-media-field {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.project-media-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+}
+
+.project-media-heading > div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.project-media-heading small {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 450;
+}
+
+.project-media-heading > strong {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.project-media-dropzone {
+  grid-template-columns: auto minmax(0, auto);
+  min-height: 104px;
+}
+
+.project-media-dropzone small {
+  grid-column: 1 / -1;
+}
+
+.project-media-upload-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 50%;
+  color: var(--emerald-bright);
+  background: var(--glass);
+  font-size: 1.35rem;
+  font-weight: 350;
+  line-height: 1;
+}
+
+.project-media-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.project-media-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-m);
+  background: var(--glass);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.project-media-card.is-hero {
+  border-color: rgba(28, 197, 126, 0.55);
+  box-shadow: 0 0 0 2px var(--emerald-soft);
+}
+
+.project-media-preview {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--canvas);
+}
+
+.project-media-preview::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4, 15, 10, 0.04), transparent 55%, rgba(4, 15, 10, 0.58));
+  pointer-events: none;
+}
+
+.project-media-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.project-media-index,
+.project-media-source,
+.project-media-preview > strong {
+  position: absolute;
+  z-index: 1;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  color: #f3f7f4;
+  background: rgba(5, 18, 12, 0.62);
+  backdrop-filter: blur(8px);
+  font-size: 0.66rem;
+  font-weight: 650;
+}
+
+.project-media-index {
+  top: 0.55rem;
+  left: 0.55rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.project-media-source {
+  top: 0.55rem;
+  right: 0.55rem;
+}
+
+.project-media-preview > strong {
+  left: 0.55rem;
+  bottom: 0.55rem;
+  color: #07170f;
+  border-color: rgba(255, 255, 255, 0.22);
+  background: #34d796;
+}
+
+.project-media-card-body {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.project-media-card-body input {
+  padding: 0.6rem 0.7rem;
+  font-size: 0.82rem;
+}
+
+.project-media-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.project-media-actions button {
+  min-height: 30px;
+  padding: 0.3rem 0.62rem;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--glass);
+  font-size: 0.7rem;
+  font-weight: 600;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.project-media-actions button:hover:not(:disabled),
+.project-media-actions button.selected {
+  color: var(--ink);
+  border-color: rgba(28, 197, 126, 0.42);
+  background: var(--emerald-soft);
+}
+
+.project-media-actions button:disabled,
+.project-order-actions button:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.project-media-actions .danger-button {
+  color: var(--red);
+}
+
+.project-focus-fields {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) repeat(2, minmax(120px, 0.65fr));
+  align-items: end;
+  gap: 0.8rem;
+  padding: 1rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-field);
+  background: var(--glass);
+}
+
+.project-focus-fields > div:first-child {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.input-suffix {
+  position: relative;
+}
+
+.input-suffix input {
+  padding-right: 2.2rem;
+}
+
+.input-suffix span {
+  position: absolute;
+  top: 50%;
+  right: 0.8rem;
+  color: var(--muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.project-advanced-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.9rem;
+}
+
+.project-table-title {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 250px;
+}
+
+.project-table-title img {
+  flex: none;
+  width: 64px;
+  height: 44px;
+  border: 1px solid var(--hairline);
+  border-radius: 9px;
+  object-fit: cover;
+}
+
+.projects-table {
+  min-width: 1080px;
+}
+
+.projects-table th:last-child,
+.projects-table td:last-child {
+  width: 390px;
+}
+
+.project-order-actions {
+  justify-content: flex-start;
+}
+
+.project-row-actions {
+  flex-wrap: wrap;
+}
+
 /* ---------- Advanced options ---------- */
 
 .advanced-options {
@@ -1417,6 +1676,14 @@ td a[href^="mailto:"]:hover {
     grid-template-columns: 1fr;
   }
 
+  .project-focus-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-focus-fields > div:first-child {
+    grid-column: 1 / -1;
+  }
+
   .publish-panel {
     position: static;
   }
@@ -1435,6 +1702,24 @@ td a[href^="mailto:"]:hover {
   }
 
   .form-grid .full {
+    grid-column: auto;
+  }
+
+  .project-media-grid,
+  .project-advanced-grid,
+  .project-focus-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .project-focus-fields > div:first-child {
+    grid-column: auto;
+  }
+
+  .project-media-dropzone {
+    grid-template-columns: 1fr;
+  }
+
+  .project-media-dropzone small {
     grid-column: auto;
   }
 
@@ -1852,6 +2137,14 @@ td a[href^="mailto:"]:hover {
 
 :root[data-theme="light"] .dropzone {
   border-color: rgba(9, 32, 22, 0.22);
+}
+
+:root[data-theme="light"] .project-media-preview::after {
+  background: linear-gradient(180deg, rgba(4, 15, 10, 0.02), transparent 55%, rgba(4, 15, 10, 0.5));
+}
+
+:root[data-theme="light"] .project-media-card.is-hero {
+  border-color: rgba(10, 122, 78, 0.5);
 }
 
 :root[data-theme="light"] .setup-page {

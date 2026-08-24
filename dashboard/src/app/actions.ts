@@ -1,5 +1,6 @@
 "use server";
 
+import type { ProjectImageRecord } from "@eimts/database";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { colomboDayEnd, colomboDayStart } from "@/lib/dates";
@@ -37,7 +38,15 @@ async function requireStaff() {
     throw new Error("Your account does not have publishing access.");
   }
 
-  return { supabase, user };
+  return { supabase, user, profile };
+}
+
+async function requireAdmin() {
+  const context = await requireStaff();
+  if (context.profile.role !== "admin") {
+    throw new Error("Only administrators can manage projects.");
+  }
+  return context;
 }
 
 function jobPayload(formData: FormData) {
@@ -281,6 +290,326 @@ export async function moveHeroSlide(id: string, direction: "up" | "down") {
     if (error) throw new Error(error.message);
   }
   revalidatePath("/hero");
+}
+
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const projectStoragePathPattern =
+  /^projects\/[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.webp$/i;
+const bundledProjectPathPattern =
+  /^\/assets\/projects\/[a-z0-9/_-]+\.webp$/i;
+const projectSiteOrigin = (
+  process.env.NEXT_PUBLIC_SITE_URL || "https://emeraldislemanpower.com"
+).replace(/\/$/, "");
+
+function integerInRange(
+  formData: FormData,
+  name: string,
+  fallback: number,
+  minimum: number,
+  maximum: number,
+) {
+  const parsed = Number.parseInt(text(formData, name), 10);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(maximum, Math.max(minimum, parsed));
+}
+
+function bundledProjectImageUrl(value: string) {
+  if (bundledProjectPathPattern.test(value)) return value;
+
+  try {
+    const url = new URL(value);
+    if (
+      url.origin === projectSiteOrigin &&
+      !url.search &&
+      bundledProjectPathPattern.test(url.pathname)
+    ) {
+      return url.toString();
+    }
+  } catch {
+    // The validation error below is deliberately the same for malformed and
+    // disallowed URLs so internal storage rules are not exposed in the UI.
+  }
+
+  throw new Error("Every project image must be a WebP managed by this website.");
+}
+
+async function projectImagesFromForm(
+  formData: FormData,
+  supabase: Awaited<ReturnType<typeof createClient>>,
+) {
+  if (!supabase) throw new Error("Supabase is not configured.");
+
+  let rawImages: unknown;
+  try {
+    rawImages = JSON.parse(text(formData, "images_json"));
+  } catch {
+    throw new Error("The project gallery could not be read. Reload and try again.");
+  }
+  if (!Array.isArray(rawImages) || rawImages.length < 1 || rawImages.length > 30) {
+    throw new Error("Add between 1 and 30 project images.");
+  }
+
+  const ids = new Set<string>();
+  const images = rawImages.map((rawImage) => {
+    if (!rawImage || typeof rawImage !== "object") {
+      throw new Error("The project gallery contains an invalid image.");
+    }
+    const input = rawImage as Record<string, unknown>;
+    const submittedId = String(input.id || "");
+    const id = uuidPattern.test(submittedId) ? submittedId : crypto.randomUUID();
+    if (ids.has(id)) throw new Error("The project gallery contains a duplicate image.");
+    ids.add(id);
+
+    const altText = String(input.alt_text || "").trim().slice(0, 240);
+    if (!altText) throw new Error("Add a description for every project image.");
+
+    const submittedStoragePath = String(input.storage_path || "").trim();
+    if (submittedStoragePath) {
+      if (!projectStoragePathPattern.test(submittedStoragePath)) {
+        throw new Error("A project image has an invalid storage path.");
+      }
+      const { data } = supabase.storage
+        .from("project-media")
+        .getPublicUrl(submittedStoragePath);
+      return {
+        id,
+        image_url: data.publicUrl,
+        storage_path: submittedStoragePath,
+        alt_text: altText,
+      } satisfies ProjectImageRecord;
+    }
+
+    return {
+      id,
+      image_url: bundledProjectImageUrl(String(input.image_url || "")),
+      storage_path: null,
+      alt_text: altText,
+    } satisfies ProjectImageRecord;
+  });
+
+  const submittedHeroId = text(formData, "hero_image_id");
+  const heroImageId = images.some((image) => image.id === submittedHeroId)
+    ? submittedHeroId
+    : images[0].id;
+
+  return { images, heroImageId };
+}
+
+async function projectPayload(
+  formData: FormData,
+  supabase: Awaited<ReturnType<typeof createClient>>,
+) {
+  const name = text(formData, "name");
+  const country = text(formData, "country");
+  const client = text(formData, "client");
+  const requestedSlug = text(formData, "slug");
+  if (!name) throw new Error("Add a project name.");
+  if (!country) throw new Error("Add the project country.");
+  if (!client) throw new Error("Add the project client.");
+
+  const slug = slugify(requestedSlug || name);
+  if (!slug) throw new Error("Use letters or numbers in the project name or URL slug.");
+
+  const { images, heroImageId } = await projectImagesFromForm(formData, supabase);
+  return {
+    slug,
+    name,
+    country,
+    client,
+    images,
+    hero_image_id: heroImageId,
+    hero_position_x: integerInRange(formData, "hero_position_x", 50, 0, 100),
+    hero_position_y: integerInRange(formData, "hero_position_y", 50, 0, 100),
+    sort_order: integerInRange(formData, "sort_order", 10, 0, 100000),
+    active: formData.get("active") === "on",
+  };
+}
+
+function storedProjectPaths(images: ProjectImageRecord[]) {
+  return images
+    .map((image) => image.storage_path)
+    .filter((path): path is string => Boolean(path));
+}
+
+async function removeProjectMedia(
+  supabase: NonNullable<Awaited<ReturnType<typeof createClient>>>,
+  paths: string[],
+) {
+  if (!paths.length) return;
+  const { error } = await supabase.storage.from("project-media").remove(paths);
+  if (error) console.error("Could not remove project media", error.message);
+}
+
+export async function createProject(formData: FormData) {
+  const { supabase, user } = await requireAdmin();
+  const content = await projectPayload(formData, supabase);
+  const payload = { ...content, created_by: user.id };
+
+  let { error } = await supabase.from("projects").insert(payload);
+  if (error?.code === "23505") {
+    payload.slug = `${payload.slug}-${Math.random().toString(36).slice(2, 6)}`;
+    ({ error } = await supabase.from("projects").insert(payload));
+  }
+  if (error) {
+    await removeProjectMedia(supabase, storedProjectPaths(content.images));
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/projects");
+  redirect("/projects");
+}
+
+export async function updateProject(id: string, formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const { data: existing, error: loadError } = await supabase
+    .from("projects")
+    .select("images")
+    .eq("id", id)
+    .single();
+  if (loadError || !existing) throw new Error(loadError?.message || "Project not found.");
+
+  const previousImages = (existing.images || []) as ProjectImageRecord[];
+  const content = await projectPayload(formData, supabase);
+  const previousPaths = new Set(storedProjectPaths(previousImages));
+  const nextPaths = new Set(storedProjectPaths(content.images));
+  const newlyUploadedPaths = [...nextPaths].filter((path) => !previousPaths.has(path));
+
+  const { error } = await supabase.from("projects").update(content).eq("id", id);
+  if (error) {
+    await removeProjectMedia(supabase, newlyUploadedPaths);
+    throw new Error(error.message);
+  }
+
+  const retiredPaths = [...previousPaths].filter((path) => !nextPaths.has(path));
+  await removeProjectMedia(supabase, retiredPaths);
+  revalidatePath("/projects");
+  redirect("/projects");
+}
+
+export async function setProjectActive(id: string, active: boolean) {
+  const { supabase } = await requireAdmin();
+  const { error } = await supabase.from("projects").update({ active }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/projects");
+}
+
+export async function deleteProject(id: string) {
+  const { supabase } = await requireAdmin();
+  const { data, error: loadError } = await supabase
+    .from("projects")
+    .select("images")
+    .eq("id", id)
+    .single();
+  if (loadError || !data) throw new Error(loadError?.message || "Project not found.");
+
+  const paths = storedProjectPaths((data.images || []) as ProjectImageRecord[]);
+  const { error } = await supabase.from("projects").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+
+  await removeProjectMedia(supabase, paths);
+  revalidatePath("/projects");
+}
+
+export async function moveProject(id: string, direction: "up" | "down") {
+  const { supabase } = await requireAdmin();
+  const { data, error } = await supabase
+    .from("projects")
+    .select("id,sort_order")
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+  if (error) throw new Error(error.message);
+
+  const projects = data || [];
+  const index = projects.findIndex((project) => project.id === id);
+  const neighbour = direction === "up" ? index - 1 : index + 1;
+  if (index === -1 || neighbour < 0 || neighbour >= projects.length) return;
+
+  const ordered = projects.map((project, position) => ({
+    id: project.id,
+    sort_order: (position + 1) * 10,
+  }));
+  const swap = ordered[index].sort_order;
+  ordered[index].sort_order = ordered[neighbour].sort_order;
+  ordered[neighbour].sort_order = swap;
+
+  for (const project of ordered) {
+    const original = projects.find((candidate) => candidate.id === project.id);
+    if (original?.sort_order === project.sort_order) continue;
+    const { error: updateError } = await supabase
+      .from("projects")
+      .update({ sort_order: project.sort_order })
+      .eq("id", project.id);
+    if (updateError) throw new Error(updateError.message);
+  }
+  revalidatePath("/projects");
+}
+
+export async function migrateBundledProjectImages(id: string) {
+  const { supabase } = await requireAdmin();
+  const { data, error: loadError } = await supabase
+    .from("projects")
+    .select("images")
+    .eq("id", id)
+    .single();
+  if (loadError || !data) throw new Error(loadError?.message || "Project not found.");
+
+  const images = (data.images || []) as ProjectImageRecord[];
+  const uploadedPaths: string[] = [];
+
+  try {
+    const migrated: ProjectImageRecord[] = [];
+    for (const image of images) {
+      if (image.storage_path) {
+        migrated.push(image);
+        continue;
+      }
+
+      const sourceUrl = bundledProjectImageUrl(image.image_url);
+      const absoluteSourceUrl = sourceUrl.startsWith("/")
+        ? `${projectSiteOrigin}${sourceUrl}`
+        : sourceUrl;
+      const response = await fetch(absoluteSourceUrl, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`Could not download bundled image (${response.status}).`);
+      }
+      const contentType = response.headers.get("content-type")?.split(";")[0];
+      if (contentType !== "image/webp") {
+        throw new Error("A bundled project image is not available as WebP yet.");
+      }
+      const bytes = await response.arrayBuffer();
+      if (bytes.byteLength > 5 * 1024 * 1024) {
+        throw new Error("A bundled WebP is larger than the storage limit.");
+      }
+
+      const path = `projects/${crypto.randomUUID()}.webp`;
+      const { error: uploadError } = await supabase.storage
+        .from("project-media")
+        .upload(path, bytes, {
+          cacheControl: "31536000",
+          contentType: "image/webp",
+          upsert: false,
+        });
+      if (uploadError) throw new Error(uploadError.message);
+      uploadedPaths.push(path);
+
+      const { data: publicUrl } = supabase.storage
+        .from("project-media")
+        .getPublicUrl(path);
+      migrated.push({ ...image, image_url: publicUrl.publicUrl, storage_path: path });
+    }
+
+    const { error: updateError } = await supabase
+      .from("projects")
+      .update({ images: migrated })
+      .eq("id", id);
+    if (updateError) throw new Error(updateError.message);
+  } catch (migrationError) {
+    await removeProjectMedia(supabase, uploadedPaths);
+    throw migrationError;
+  }
+
+  revalidatePath("/projects");
 }
 
 const applicationStatuses = [

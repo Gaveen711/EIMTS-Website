@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import Image from "next/image";
 
 export interface ProjectShowcaseItem {
   id: string;
@@ -35,17 +36,23 @@ export function ProjectShowcase({ projects }: ProjectShowcaseProps) {
           >
             <h3>{project.name}</h3>
             <div className={`project-showcase-gallery project-showcase-gallery--${project.images.length}`}>
-              {project.images.map((image, imageIndex) => (
+              {project.images.map((image) => (
                 <div className="project-showcase-image" key={image.src}>
-                  <motion.img
-                    src={image.src}
-                    alt={image.alt}
-                    width="1600"
-                    height="1067"
-                    loading={index === 0 && imageIndex === 0 ? "eager" : "lazy"}
+                  <motion.div
+                    className="project-showcase-image-media"
                     whileHover={reduceMotion ? undefined : { scale: 1.035 }}
                     transition={{ duration: 0.45, ease: "easeOut" }}
-                  />
+                  >
+                    <Image
+                      src={image.src}
+                      alt={image.alt}
+                      fill
+                      sizes="(max-width: 620px) 92vw, (max-width: 960px) 46vw, 42vw"
+                      quality={78}
+                      loading="lazy"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </motion.div>
                 </div>
               ))}
             </div>
