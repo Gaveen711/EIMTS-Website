@@ -21,11 +21,12 @@ const categories = [
 
 // ============================================================================
 // 2. CLIENT TESTIMONIALS DATA
-// Edit quotes, client names, companies, and locations shown in the carousel
+// Edit quotes, client names, companies, and locations shown in the quote grid.
+// All entries render at once; the last entry gets the inverted accent cell.
 // ============================================================================
 const testimonials = [
   { quote: "Always the best support, whenever it is required. A recruitment partner we genuinely value.", name: "Mohammed Haneefa", company: "Apparel Group", place: "Saudi Arabia", avatar: "" },
-  { quote: "Professional staff, a welcoming environment and service that makes every requirement feel carefully handled.", name: "Rajakumar", company: "Thabat", place: "K.S.A", avatar: "" },
+  { quote: "Professional staff, a welcoming environment and service that makes every requirement feel carefully handled.", name: "Rajakumar", company: "Thabat", place: "Saudi Arabia", avatar: "" },
   { quote: "From the first day, the team took our requirements seriously. I truly appreciate the partnership.", name: "Sultan Rashid", company: "Alshaheen Arabic Modern", place: "Muscat, Oman", avatar: "" },
   { quote: "A fantastic experience from start to finish. The communication, care and candidate support were excellent.", name: "Taniya Perera", company: "Raffles & Fairmont", place: "Qatar", avatar: "" },
 ];
@@ -70,12 +71,20 @@ const companyStory = [
 export default function Home({ hero }: { hero: HeroContent }) {
   const heroSlides = hero.slides;
   const [activeSlide, setActiveSlide] = useState(0);
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [activeStory, setActiveStory] = useState(0);
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const inquiryDialogRef = useRef<HTMLDialogElement>(null);
   const activeHero = heroSlides[activeSlide] ?? heroSlides[0];
-  const activeClientTestimonial = testimonials[activeTestimonial];
+
+  // Testimonial cells carry an amber spotlight that follows the pointer.
+  // Pointer events cover mouse, touch and pen: move tracks the cursor,
+  // down places the glow under a finger before the press style shows it.
+  const placeQuoteSpotlight = (event: React.PointerEvent<HTMLElement>) => {
+    const cell = event.currentTarget;
+    const rect = cell.getBoundingClientRect();
+    cell.style.setProperty("--spot-x", `${event.clientX - rect.left}px`);
+    cell.style.setProperty("--spot-y", `${event.clientY - rect.top}px`);
+  };
 
   // Reveal-on-scroll for [data-reveal] sections is handled globally by
   // ScrollReveal in the root layout.
@@ -97,14 +106,6 @@ export default function Home({ hero }: { hero: HeroContent }) {
     }, 6500);
     return () => window.clearInterval(timer);
   }, [hero.takeover, heroSlides.length]);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = window.setInterval(() => {
-      setActiveTestimonial((current) => (current + 1) % testimonials.length);
-    }, 6000);
-    return () => window.clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     const steps = Array.from(document.querySelectorAll<HTMLElement>("[data-story-step]"));
@@ -335,8 +336,9 @@ export default function Home({ hero }: { hero: HeroContent }) {
     </div></section>
 
     {/* ====================================================================== */}
-    {/* SECTION 8: CLIENT TESTIMONIALS CAROUSEL                                */}
-    {/* Populated from testimonials array at top of file                       */}
+    {/* SECTION 8: CLIENT TESTIMONIALS \u2014 QUOTE LEDGER                          */}
+    {/* All entries from the testimonials array render at once in a hairline   */}
+    {/* grid of uniform white cells.                                           */}
     {/* ====================================================================== */}
     <section className="ei-testimonials" aria-labelledby="testimonial-title">
       <div className="container">
@@ -344,28 +346,31 @@ export default function Home({ hero }: { hero: HeroContent }) {
           <p>Client testimonials</p>
           <h2 id="testimonial-title">Trusted by worldwide clients</h2>
         </div>
-        <div className="ei-testimonial-carousel" data-reveal>
-          <figure className="ei-testimonial-panel" key={activeClientTestimonial.name}>
-            <div className="ei-testimonial-quote-mark" aria-hidden="true">&ldquo;</div>
-            <div className="ei-testimonial-person">
-              <div className="ei-testimonial-avatar" aria-hidden={!activeClientTestimonial.avatar}>
-                {activeClientTestimonial.avatar ? <img src={activeClientTestimonial.avatar} alt={`Portrait of ${activeClientTestimonial.name}`} /> : <span>{activeClientTestimonial.name.split(" ").map((part) => part[0]).join("")}</span>}
+        {/* data-reveal sits on the grid (not the cells) so all four quotes
+            appear together — per-cell reveal can strand the bottom row
+            hidden when the section is the last thing above the footer. */}
+        <div className="ei-quote-grid" data-reveal>
+          {testimonials.map((testimonial) => (
+            <figure
+              className="ei-quote"
+              key={testimonial.name}
+              onPointerMove={placeQuoteSpotlight}
+              onPointerDown={placeQuoteSpotlight}
+            >
+              <div className="ei-quote-top">
+                <span className="ei-quote-place">{testimonial.place}</span>
+                <span className="ei-quote-stars" aria-label="Five-star client testimonial"><span aria-hidden="true">{"\u2605\u2605\u2605\u2605\u2605"}</span></span>
               </div>
-              <figcaption><strong>{activeClientTestimonial.name}</strong><span>{activeClientTestimonial.company} &middot; {activeClientTestimonial.place}</span></figcaption>
-              <span className="ei-testimonial-rating" aria-label="Five-star client testimonial"><span aria-hidden="true">{"\u2605\u2605\u2605\u2605\u2605"}</span></span>
-            </div>
-            <blockquote>&ldquo;{activeClientTestimonial.quote}&rdquo;</blockquote>
-            <span className="ei-testimonial-verified">Verified client</span>
-          </figure>
-          <div className="ei-testimonial-controls" aria-label="Testimonial controls">
-            <button type="button" className="ei-testimonial-arrow" onClick={() => setActiveTestimonial((current) => (current - 1 + testimonials.length) % testimonials.length)} aria-label="Previous testimonial"><span aria-hidden="true">{String.fromCharCode(8592)}</span></button>
-            <div className="ei-testimonial-dots" role="group" aria-label="Choose a testimonial">
-              {testimonials.map((testimonial, index) => (
-                <button key={testimonial.name} type="button" className={index === activeTestimonial ? "is-active" : ""} onClick={() => setActiveTestimonial(index)} aria-label={`Show testimonial from ${testimonial.name}`} aria-pressed={index === activeTestimonial} />
-              ))}
-            </div>
-            <button type="button" className="ei-testimonial-arrow" onClick={() => setActiveTestimonial((current) => (current + 1) % testimonials.length)} aria-label="Next testimonial"><span aria-hidden="true">{String.fromCharCode(8594)}</span></button>
-          </div>
+              <blockquote>&ldquo;{testimonial.quote}&rdquo;</blockquote>
+              <figcaption>
+                <span className="ei-quote-avatar" aria-hidden="true">
+                  {testimonial.avatar ? <img src={testimonial.avatar} alt="" /> : testimonial.name.split(" ").map((part) => part[0]).join("")}
+                </span>
+                <span className="ei-quote-who"><strong>{testimonial.name}</strong><small>{testimonial.company}</small></span>
+                <em className="ei-quote-verified">Verified client</em>
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </div>
     </section>

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { articles } from "@/lib/articles";
 import { getPublishedJobSlugs } from "@/lib/jobs";
 import { siteUrl } from "@/lib/site";
 
@@ -26,6 +27,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticRoutes,
+    ...articles.map((article) => ({
+      url: `${siteUrl}/${article.slug}/`,
+      lastModified: new Date(article.publishedDate),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
     ...jobs.map((job) => ({
       url: `${siteUrl}/foreign-job-vacancies/${job.slug}/`,
       lastModified: new Date(job.updated_at),

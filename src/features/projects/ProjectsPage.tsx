@@ -1,87 +1,122 @@
 import Link from "../../components/ui/Link";
-import { PageHero } from "../../components/ui/PageHero";
-import { Timeline, type TimelineEntry } from "../../components/ui/Timeline";
+import ProjectShowcase, { type ProjectShowcaseItem } from "../../components/ui/3d-interactive-timeline";
 
 // ============================================================================
-// PROJECTS TIMELINE DATA
-// Modify/add yearly project milestones, images, and captions here.
+// PROJECT SHOWCASE DATA
+// Modify project names and images here.
 // Image files are stored in: /public/assets/
+// `country` + `client` label the hero panels; `hero` picks the panel photo
+// and its crop focus (CSS object-position) for the tall hero slice.
 // ============================================================================
-const timelineData: TimelineEntry[] = [
+type Project = ProjectShowcaseItem & {
+  country: string;
+  client: string;
+  hero: { src: string; position: string };
+};
+
+const projects: Project[] = [
   {
-    title: "2022",
-    content: <div className="project-timeline-gallery">
-      <img src="/assets/candidate-service.webp" alt="Candidate consultation at Emerald Isle Manpower" width="1600" height="1067" loading="lazy" />
-      <img src="/assets/employer-service.webp" alt="Emerald Isle employer recruitment service" width="1600" height="1067" loading="lazy" />
-    </div>,
+    id: "al-mahmal",
+    name: "Saudi Arabia Al Mahmal",
+    country: "Saudi Arabia",
+    client: "Al Mahmal",
+    hero: { src: "/assets/projects/saudi-al-mahmal/training.JPG", position: "30% 45%" },
+    images: [
+      { src: "/assets/projects/saudi-al-mahmal/training.JPG", alt: "Saudi Arabia Al Mahmal workforce training" },
+      { src: "/assets/projects/saudi-al-mahmal/interview.JPG", alt: "Saudi Arabia Al Mahmal project interview" },
+    ],
   },
   {
-    title: "2023",
-    content: <div className="project-timeline-gallery">
-      <img src="/assets/hero-employer-partnership.webp" alt="International employer partnership project" width="1600" height="1067" loading="lazy" />
-      <img src="/assets/employer-handshake.png" alt="Employer partnership meeting" width="1664" height="936" loading="lazy" />
-    </div>,
+    id: "mcdonalds-kuwait",
+    name: "McDonalds Kuwait",
+    country: "Kuwait",
+    client: "McDonalds",
+    hero: { src: "/assets/projects/mcdonalds-kuwait/interview.JPG", position: "42% 40%" },
+    images: [
+      { src: "/assets/projects/mcdonalds-kuwait/interview.JPG", alt: "McDonalds Kuwait candidate interview" },
+      { src: "/assets/projects/mcdonalds-kuwait/briefing-1.JPG", alt: "McDonalds Kuwait candidate briefing" },
+      { src: "/assets/projects/mcdonalds-kuwait/team-1.jpg", alt: "McDonalds Kuwait project team" },
+      { src: "/assets/projects/mcdonalds-kuwait/team-2.JPG", alt: "McDonalds Kuwait recruitment team" },
+      { src: "/assets/projects/mcdonalds-kuwait/team-3.JPG", alt: "McDonalds Kuwait project group" },
+      { src: "/assets/projects/mcdonalds-kuwait/team-4.JPG", alt: "McDonalds Kuwait project participants" },
+      { src: "/assets/projects/mcdonalds-kuwait/briefing-2.JPG", alt: "McDonalds Kuwait group briefing" },
+    ],
   },
   {
-    title: "2024",
-    content: <div className="project-timeline-gallery">
-      <img src="/assets/emerald-journey-hero.webp" alt="Emerald Isle international recruitment journey" width="1600" height="1067" loading="lazy" />
-      <img src="/assets/slbfe-license-reference.png" alt="Emerald Isle SLBFE recruitment licence" width="1603" height="637" loading="lazy" />
-    </div>,
+    id: "qatar-compass",
+    name: "Qatar Compass",
+    country: "Qatar",
+    client: "Qatar Compass",
+    hero: { src: "/assets/projects/qatar-compass/briefing.JPG", position: "28% 45%" },
+    images: [
+      { src: "/assets/projects/qatar-compass/arrival.JPG", alt: "Qatar Compass workforce arrival" },
+      { src: "/assets/projects/qatar-compass/briefing.JPG", alt: "Qatar Compass project briefing" },
+      { src: "/assets/projects/qatar-compass/team-1.JPG", alt: "Qatar Compass project team" },
+      { src: "/assets/projects/qatar-compass/team-2.JPG", alt: "Qatar Compass project group" },
+      { src: "/assets/projects/qatar-compass/team-3.JPG", alt: "Qatar Compass candidates" },
+      { src: "/assets/projects/qatar-compass/team-4.JPG", alt: "Qatar Compass project participants" },
+    ],
   },
   {
-    title: "2025",
-    content: <div className="project-timeline-gallery">
-      <img src="/assets/about-awards/award-hero-1.webp" alt="Emerald Isle project recognition" width="1600" height="1067" loading="lazy" />
-      <img src="/assets/about-awards/award-hero-2.webp" alt="Emerald Isle team achievement" width="1600" height="1067" loading="lazy" />
-    </div>,
-  },
-  {
-    title: "2026",
-    content: <div className="project-timeline-gallery">
-      <img src="/assets/about-awards/award-hero-3.webp" alt="Emerald Isle project showcase" width="1600" height="1067" loading="lazy" />
-      <img src="/assets/about-awards/employer-brand-award.webp" alt="Emerald Isle employer brand recognition" width="1600" height="1067" loading="lazy" />
-    </div>,
+    id: "uae-almasaood",
+    name: "UAE AL Masaood",
+    country: "United Arab Emirates",
+    client: "AL Masaood",
+    hero: { src: "/assets/projects/uae-almasaood/site.JPG", position: "72% 40%" },
+    images: [
+      { src: "/assets/projects/uae-almasaood/briefing.JPG", alt: "UAE AL Masaood project briefing" },
+      { src: "/assets/projects/uae-almasaood/workshop.JPG", alt: "UAE AL Masaood workplace workshop" },
+      { src: "/assets/projects/uae-almasaood/inspection.JPG", alt: "UAE AL Masaood vehicle inspection" },
+      { src: "/assets/projects/uae-almasaood/site.JPG", alt: "UAE ALMasaood project site visit" },
+    ],
   },
 ];
+
+const photoCount = projects.reduce((count, project) => count + project.images.length, 0);
 
 export default function ProjectsPage() {
   return <main id="main" className="projects-page">
     {/* ====================================================================== */}
-    {/* FULL-HEIGHT HERO SECTION WITH BACKGROUND VIDEO & METRIC STATS          */}
-    {/* To replace background video: Put your .mp4 in /public/assets/ and      */}
-    {/* update videoSrc="/assets/your-video-file.mp4"                          */}
+    {/* DESTINATION WALL HERO                                                  */}
+    {/* Four full-height photo panels, one per project. Hovering a panel       */}
+    {/* widens it; clicking jumps to that project's gallery below. Panel       */}
+    {/* photos and crop focus come from each project's `hero` field above.     */}
     {/* ====================================================================== */}
-    <PageHero
-      eyebrow="GLOBAL RECRUITMENT & MOBILISATION"
-      title="Workforce projects, delivered responsibly."
-      description="From focused recruitment campaigns to large-scale workforce mobilisation across the Middle East, Asia, and Europe, explore the work delivered by Emerald Isle."
-      videoSrc="/assets/projects-hero-bg.mp4"
-      posterSrc="/assets/emerald-journey-hero.webp"
-      isFullHeight={true}
-    >
-      {/* Hero Stats Strip - Edit key project metrics below */}
-      <div className="hero-stats-strip">
-        <div className="hero-stat-item">
-          <strong>150+</strong>
-          <span>Major Projects</span>
+    <section className="projects-hero" aria-labelledby="projects-hero-title">
+      <header className="container projects-hero-top">
+        <div>
+          <p className="eyebrow">Global recruitment &amp; mobilisation</p>
+          <h1 id="projects-hero-title">From Colombo <span>to the world.</span></h1>
         </div>
-        <div className="hero-stat-item">
-          <strong>30+</strong>
-          <span>Years Experience</span>
-        </div>
-        <div className="hero-stat-item">
-          <strong>50,000+</strong>
-          <span>Talent Placed</span>
-        </div>
-      </div>
-    </PageHero>
+        <p className="projects-hero-note">
+          {projects.length} flagship deployments, {photoCount} photographs. Every crew below was
+          recruited, prepared and flown out by Emerald Isle.
+        </p>
+      </header>
+      <nav className="projects-hero-wall" aria-label="Browse projects" data-reveal>
+        {projects.map((project) => (
+          <a className="projects-hero-panel" key={project.id} href={`#${project.id}`}>
+            <img
+              src={project.hero.src}
+              alt=""
+              width="3840"
+              height="2160"
+              style={{ objectPosition: project.hero.position }}
+            />
+            <span className="projects-hero-country">{project.country}</span>
+            <span className="projects-hero-client">
+              {project.client}
+              <span className="projects-hero-cue" aria-hidden="true">See the photos ↓</span>
+            </span>
+          </a>
+        ))}
+      </nav>
+    </section>
 
     {/* ====================================================================== */}
-    {/* INTERACTIVE TIMELINE SHOWCASE                                          */}
-    {/* Displays yearly project highlights from timelineData above             */}
+    {/* PROJECT PHOTO SHOWCASE                                                 */}
     {/* ====================================================================== */}
-    <Timeline data={timelineData} />
+    <ProjectShowcase projects={projects} />
 
     {/* ====================================================================== */}
     {/* BOTTOM CALL-TO-ACTION BAND                                             */}
