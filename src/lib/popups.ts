@@ -24,6 +24,7 @@ export async function getActivePopup(): Promise<PublicPopup | null> {
   const { data, error } = await supabase
     .from("popups")
     .select("id,title,message,image_url,link_url,link_label,updated_at")
+    .not("image_url", "is", null)
     .order("updated_at", { ascending: false })
     .limit(1)
     .maybeSingle();

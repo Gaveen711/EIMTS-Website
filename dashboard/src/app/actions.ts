@@ -125,12 +125,24 @@ export async function updateJobStatus(id: string, status: string) {
 function popupPayload(formData: FormData) {
   const startsAt = text(formData, "starts_at");
   const endsAt = text(formData, "ends_at");
+  const title = text(formData, "title") || "Promotional popup";
+  const imageUrl = text(formData, "image_url");
+  const linkUrl = text(formData, "link_url");
+
+  if (!imageUrl) throw new Error("Upload a WebP image for the popup.");
+  if (!/\.webp(?:[?#].*)?$/i.test(imageUrl)) {
+    throw new Error("Popup images must be WebP files.");
+  }
+  if (linkUrl && !/^https?:\/\//i.test(linkUrl) && !linkUrl.startsWith("/")) {
+    throw new Error("Add a full URL or an internal path starting with /.");
+  }
+
   return {
-    title: text(formData, "title"),
-    message: text(formData, "message") || null,
-    image_url: text(formData, "image_url") || null,
-    link_url: text(formData, "link_url") || null,
-    link_label: text(formData, "link_label") || null,
+    title,
+    message: null,
+    image_url: imageUrl,
+    link_url: linkUrl || null,
+    link_label: null,
     active: formData.get("active") === "on",
     starts_at: startsAt ? colomboDayStart(startsAt) : null,
     // The end date should include the whole final day.

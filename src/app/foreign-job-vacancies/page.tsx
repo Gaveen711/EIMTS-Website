@@ -19,22 +19,10 @@ export default async function Page() {
     getPublishedJobs(),
     getActivePopup(),
   ]);
-  // A staff-authored popup wins; otherwise urgent vacancies announce themselves.
-  const urgentJobs = jobs
-    .filter((job) => job.urgent)
-    .slice(0, 5)
-    .map((job) => ({
-      id: job.id,
-      slug: job.slug,
-      title: job.title,
-      location: job.location,
-      category: job.category,
-      image: job.image,
-    }));
   return (
     <>
       <JobsPage initialJobs={jobs} />
-      <PromoPopup popup={popup} urgentJobs={urgentJobs} />
+      <PromoPopup popup={popup} />
     </>
   );
 }

@@ -564,6 +564,41 @@ td small {
   white-space: nowrap;
 }
 
+.popup-row-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 220px;
+}
+
+.popup-row-summary img {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-s);
+  background: var(--glass);
+  object-fit: cover;
+}
+
+.popup-destination {
+  max-width: 280px;
+}
+
+.popup-destination a,
+.popup-destination span {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popup-destination a:hover {
+  color: var(--emerald-bright);
+}
+
 .status {
   display: inline-flex;
   align-items: center;
@@ -1740,6 +1775,25 @@ td a[href^="mailto:"]:hover {
   background: var(--canvas);
 }
 
+/* A CSS layer keeps the pixel field visible while the canvas adds its
+   per-cell shimmer. It also provides a clear visual fallback if a browser
+   disables Canvas entirely. */
+.auth-page::before {
+  content: "";
+  position: absolute;
+  inset: -16px;
+  z-index: 0;
+  background-image: radial-gradient(
+    circle,
+    rgba(213, 247, 227, 0.48) 1.2px,
+    transparent 1.45px
+  );
+  background-size: 12px 12px;
+  opacity: 0.42;
+  animation: auth-pixel-drift 18s linear infinite;
+  pointer-events: none;
+}
+
 .auth-canvas {
   position: absolute;
   inset: 0;
@@ -1754,9 +1808,9 @@ td a[href^="mailto:"]:hover {
   z-index: 1;
   background: radial-gradient(
     circle at center,
-    rgba(7, 16, 12, 0.85) 0%,
-    rgba(7, 16, 12, 0.3) 55%,
-    rgba(7, 16, 12, 0.75) 100%
+    rgba(7, 16, 12, 0.68) 0%,
+    rgba(7, 16, 12, 0.16) 55%,
+    rgba(7, 16, 12, 0.58) 100%
   );
   pointer-events: none;
 }
@@ -2137,6 +2191,15 @@ td a[href^="mailto:"]:hover {
 
 :root[data-theme="light"] .dropzone {
   border-color: rgba(9, 32, 22, 0.22);
+}
+
+@keyframes auth-pixel-drift {
+  from { background-position: 0 0; }
+  to { background-position: 48px 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-page::before { animation: none; }
 }
 
 :root[data-theme="light"] .project-media-preview::after {

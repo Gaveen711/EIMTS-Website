@@ -40,7 +40,7 @@ export default async function EditPopupPage({
         <section className="editor-title">
           <p className="eyebrow">Edit popup</p>
           <h1>{popup.title}</h1>
-          <p>Changes appear on the website within a few minutes.</p>
+          <p>Replace the image or optionally update where visitors go when they click it.</p>
         </section>
         <PopupForm action={updatePopup.bind(null, popup.id)} popup={popup} />
       </main>

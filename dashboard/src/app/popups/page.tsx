@@ -62,7 +62,7 @@ export default async function PopupsPage() {
             <p className="eyebrow">Website announcements</p>
             <h1>Popups</h1>
             <p>
-              Promote urgent vacancies or announcements on the public find-jobs
+              Publish one image-first popup at a time on the public find-jobs
               page.
             </p>
           </div>
@@ -86,6 +86,7 @@ export default async function PopupsPage() {
                 <thead>
                   <tr>
                     <th>Popup</th>
+                    <th>Destination</th>
                     <th>Schedule</th>
                     <th>Status</th>
                     <th>
@@ -99,8 +100,21 @@ export default async function PopupsPage() {
                     return (
                       <tr key={popup.id}>
                         <td>
-                          <strong>{popup.title}</strong>
-                          {popup.message && <small>{popup.message}</small>}
+                          <div className="popup-row-summary">
+                            {popup.image_url && (
+                              <img src={popup.image_url} alt="" loading="lazy" />
+                            )}
+                            <strong>{popup.title}</strong>
+                          </div>
+                        </td>
+                        <td className="popup-destination">
+                          {popup.link_url ? (
+                            <a href={popup.link_url} target="_blank" rel="noreferrer">
+                              {popup.link_url}
+                            </a>
+                          ) : (
+                            <span>Not set</span>
+                          )}
                         </td>
                         <td>
                           {popup.starts_at || popup.ends_at

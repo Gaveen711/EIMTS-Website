@@ -17,45 +17,34 @@ export function PopupForm({ action, popup }: Props) {
           <p className="eyebrow">Popup details</p>
           <h2>Shown on the find-jobs page</h2>
           <p className="form-hint">
-            Visitors see the popup once per browsing session. Keep the message
-            short — one announcement or promotion at a time works best.
+            Visitors see one image popup on the find-jobs page. Clicking the
+            image opens the destination you provide below.
           </p>
         </div>
         <div className="form-grid">
           <label className="full">
-            Headline *
+            Internal name / image alt text (optional)
             <input
               name="title"
               defaultValue={popup?.title}
-              placeholder="e.g. 50 new vacancies in Turkey this month"
-              required
+              placeholder="e.g. Turkey recruitment campaign"
             />
           </label>
+          <ImageDropzone
+            defaultUrl={popup?.image_url}
+            folder="popups"
+            label="Popup image *"
+            hint="JPG, PNG or WebP — converted to WebP before upload."
+            required
+          />
           <label className="full">
-            Message
-            <textarea
-              name="message"
-              rows={4}
-              defaultValue={popup?.message || ""}
-              placeholder="A short supporting sentence or two."
-            />
-          </label>
-          <ImageDropzone defaultUrl={popup?.image_url} />
-          <label>
-            Button link (optional)
+            Destination URL (optional)
             <input
               name="link_url"
-              type="url"
+              type="text"
+              inputMode="url"
               defaultValue={popup?.link_url || ""}
-              placeholder="https://…"
-            />
-          </label>
-          <label>
-            Button label
-            <input
-              name="link_label"
-              defaultValue={popup?.link_label || ""}
-              placeholder="e.g. View vacancies"
+              placeholder="https://example.com or /foreign-job-vacancies/"
             />
           </label>
           <label>

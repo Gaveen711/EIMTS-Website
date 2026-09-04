@@ -25,7 +25,7 @@ export default async function NewPopupPage() {
         <section className="editor-title">
           <p className="eyebrow">New popup</p>
           <h1>Create a website popup</h1>
-          <p>Announce promotions or urgent vacancies to website visitors.</p>
+          <p>Upload one promotional image. Add a destination URL if the image should be clickable.</p>
         </section>
         <PopupForm action={createPopup} />
       </main>
